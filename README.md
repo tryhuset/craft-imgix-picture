@@ -39,46 +39,47 @@ Create a settings fil in your config directory.
 
 with the following code
 
-    <?php
-    return [
-        // 'variableName' => 'craftImgixPicture', // ovverride craft variable name
-        'imgix' => [], // Default imgix options
-        'imageStyles' => [
-            'complex-picture' => [
-                'imgix' => [], // Override default imgix options
-                'sources' => [
-                    [
-                        'media' => '(max-width: 600px)',
-                        'aspectRatio' => 4 / 3,
-                        'sizes' => '100px',
-                        'widths' => [100, 200],
-                        'imgix' => [], // Override imgix options
-                    ],
-                    [
-                        'media' => '(max-width: 1200px)',
-                        'sizes' => '300px',
-                        'widths' => [300, 600],
-                    ]
-                ],
-                'img' => [
-                    'aspectRatio' => 260 / 280,
-                    'sizes' => '50vw',
-                    'widths' => [260, 260 * 2, 260 * 3],
-                    'alt' => 'foo',
-                    'attr' => ['class' => 'foo'], // Add your html attributes
+```php
+<?php
+return [
+    // 'variableName' => 'craftImgixPicture', // ovverride craft variable name
+    'imgix' => [], // Default imgix options
+    'imageStyles' => [
+        'complex-picture' => [
+            'imgix' => [], // Override default imgix options
+            'sources' => [
+                [
+                    'media' => '(max-width: 600px)',
+                    'aspectRatio' => 4 / 3,
+                    'sizes' => '100px',
+                    'widths' => [100, 200],
                     'imgix' => [], // Override imgix options
                 ],
+                [
+                    'media' => '(max-width: 1200px)',
+                    'sizes' => '300px',
+                    'widths' => [300, 600],
+                ]
             ],
-
-            'simple-image': [
-              'img' => [
-                    'widths' => [260],
-                    'alt' => 'foo',
-                ],
-            ]            
+            'img' => [
+                'aspectRatio' => 260 / 280,
+                'sizes' => '50vw',
+                'widths' => [260, 260 * 2, 260 * 3],
+                'alt' => 'foo',
+                'attr' => ['class' => 'foo'], // Add your html attributes
+                'imgix' => [], // Override imgix options
+            ],
         ],
-    ];
 
+        'simple-image': [
+          'img' => [
+                'widths' => [260],
+                'alt' => 'foo',
+            ],
+        ]            
+    ],
+];
+```
 
 ## Render html tag
 ```twig
