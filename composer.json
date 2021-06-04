@@ -11,18 +11,19 @@
         "craft imgix picture"
     ],
     "support": {
-        "docs": "???",
-        "issues": "???"
+        "docs": "https://git1.apt.no/open/craft-imgix-picture",
+        "issues": "https://git1.apt.no/open/craft-imgix-picture/-/issues"
     },
     "license": "MIT",
     "authors": [
         {
-            "name": "thomas@apt.no",
+            "name": "Apt as",
             "homepage": "https://apt.no"
         }
     ],
     "require": {
-        "craftcms/cms": "^3.0.0"
+        "craftcms/cms": "^3.0.0",
+        "superbig/craft3-imgix": "^2.1"
     },
     "autoload": {
         "psr-4": {
@@ -32,7 +33,7 @@
     "extra": {
         "name": "Craft Imgix Picture",
         "handle": "craft-imgix-picture",
-        "developer": "thomas@apt.no",
+        "developer": "Apt as",
         "developerUrl": "https://apt.no",
         "documentationUrl": "???",
         "changelogUrl": "???",

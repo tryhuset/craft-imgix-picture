@@ -3,6 +3,6 @@
         <source srcset="{{ source.srcSet }}"{% if source.media|default(false) %} media="{{ source.media }}"{% endif %}{% if source.sizes|default(false) %} sizes="{{ source.sizes }}"{% endif %} />
     {% endfor %}
     {% if img %}
-        <img src="{{ img.src }}"{% if img.srcSet|default(false) %} srcset="{{ img.srcSet }}"{% endif %}{% if img.sizes|default(false) %} sizes="{{ img.sizes }}"{% endif %} alt="{{ img.alt|default('') }}" />
+        <img {% if img.srcSet|default(false) %} srcset="{{ img.srcSet }}"{% endif %}{% if img.src|default(false) %} src="{{ img.src }}"{% endif %}{% if img.sizes|default(false) %} sizes="{{ img.sizes }}"{% endif %}{% if img.sizes|default(false) %} sizes="{{ img.sizes }}"{% endif %} alt="{{ img.alt|default('') }}" />
     {% endif %}
 </picture>
