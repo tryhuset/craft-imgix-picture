@@ -110,18 +110,18 @@ class Service extends Component
 
         $data = $this->getArray($asset, $key, $options);
 
-        $oldMode = Craft::$app->view->getTemplateMode();
-        Craft::$app->view->setTemplateMode(View::TEMPLATE_MODE_SITE);
-
-        $template = array_key_exists('sources', $data) ? 'craft-imgix-picture/picture' : 'craft-imgix-picture/img';
-
         if (array_key_exists('attr', $data)) {
-            $data['attr'] = array_map(function($key, $value) {
+            $data['attr'] = array_map(function ($key, $value) {
                 return "{$key}=\"{$value}\"";
             }, array_keys($data['attr']), array_values($data['attr']));
 
             $data['attr'] = implode(' ', $data['attr']);
         }
+
+        $oldMode = Craft::$app->view->getTemplateMode();
+        Craft::$app->view->setTemplateMode(View::TEMPLATE_MODE_SITE);
+
+        $template = array_key_exists('sources', $data) ? 'craft-imgix-picture/picture' : 'craft-imgix-picture/img';
 
         $html =  Craft::$app->view->renderTemplate(
             $template,
@@ -204,6 +204,9 @@ class Service extends Component
 
     protected function getImageArray(Asset $asset, $style, $imgixOptions = [], $options = [])
     {
+        $alt = $asset->alt ?? $asset->title ?? '';
+        $alt = $style['alt'] ?? $alt;
+
         if (array_key_exists('imgix', $style)) {
             $imgixOptions = array_merge($imgixOptions, $style['imgix']);
             unset($style['imgix']);
@@ -214,14 +217,28 @@ class Service extends Component
             unset($options['imgix']);
         }
 
+
+        if (array_key_exists('alt', $options)) {
+            $alt = $options['alt'];
+        }
+
         $srcSet = $this->getSrcSet($asset, $style, $imgixOptions);
+        $src = array_shift($srcSet);
 
         unset($style['aspectRatio']);
         unset($style['widths']);
 
+        if (count($srcSet)) {
+            return array_merge($style, [
+                'srcSet' => implode(', ', $srcSet),
+                'src' => $src,
+                'alt' => $alt,
+            ]);
+        }
+
         return array_merge($style, [
-            'srcSet' => implode(', ', $srcSet),
-            'src' => $srcSet[0],
+            'src' => $src,
+            'alt' => $alt,
         ]);
     }
 }

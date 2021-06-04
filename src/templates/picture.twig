@@ -1,8 +1,8 @@
-<picture{% if attr|default(false) %} {{attr}}{% endif %}>
+<picture{% if attr|default(false) %} {{ attr|raw }}{% endif %}>
     {% for source in sources %}
         <source srcset="{{ source.srcSet }}"{% if source.media|default(false) %} media="{{ source.media }}"{% endif %}{% if source.sizes|default(false) %} sizes="{{ source.sizes }}"{% endif %} />
     {% endfor %}
     {% if img %}
-        <img src="{{ img.src }}"{% if img.srcSet %} srcset="{{ img.srcSet }}"{% endif %}{% if img.sizes %} sizes="{{ img.sizes }}"{% endif %} alt="{{ img.alt|default('') }}" />
+        <img src="{{ img.src }}"{% if img.srcSet|default(false) %} srcset="{{ img.srcSet }}"{% endif %}{% if img.sizes|default(false) %} sizes="{{ img.sizes }}"{% endif %} alt="{{ img.alt|default('') }}" />
     {% endif %}
 </picture>
