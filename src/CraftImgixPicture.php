@@ -19,6 +19,8 @@ use Craft;
 use craft\base\Plugin;
 use craft\services\Plugins;
 use craft\events\PluginEvent;
+use craft\events\RegisterTemplateRootsEvent;
+use craft\web\View;
 use craft\web\twig\variables\CraftVariable;
 use Exception;
 use yii\base\Event;
@@ -79,6 +81,15 @@ class CraftImgixPicture extends Plugin
         }
 
         Craft::$app->view->registerTwigExtension(new CraftImgixPictureTwigExtension());
+
+        // dd($this->id);
+
+        // Base template directory
+        Event::on(View::class, View::EVENT_REGISTER_SITE_TEMPLATE_ROOTS, function (RegisterTemplateRootsEvent $e) {
+            if (is_dir($baseDir = $this->getBasePath() . DIRECTORY_SEPARATOR . 'templates')) {
+                $e->roots[$this->id] = $baseDir;
+            }
+        });
 
         Event::on(
             CraftVariable::class,

@@ -7,6 +7,9 @@ use craft\base\Model;
 class Settings extends Model
 {
     public $variableName = 'craftImgixPicture';
+
+    public $imgix = [];
+
     public $imageStyles = [];
 
     protected function validateSource($attribute, $key, $source)
@@ -53,10 +56,17 @@ class Settings extends Model
         }
     }
 
+    public function validateArray($attribute) {
+        if (!is_array($this->$attribute)) {
+            $this->addError($attribute, Craft::t('craft-imgix-picture', '{attribute} must be an array.', ['attribute' => $attribute]));
+        }
+    }
+
     public function rules()
     {
         return [
             [['variableName', 'imageStyles'], 'required'],
+            ['imgix', 'validateArray'],
             ['imageStyles', 'validateImageStyles']
         ];
     }

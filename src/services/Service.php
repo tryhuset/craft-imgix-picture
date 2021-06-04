@@ -15,6 +15,9 @@ use apt\craftimgixpicture\CraftImgixPicture;
 use Craft;
 use craft\base\Component;
 use craft\elements\Asset;
+use craft\web\View;
+use craft\helpers\Template;
+
 use superbig\imgix\Imgix;
 
 /**
@@ -25,14 +28,15 @@ use superbig\imgix\Imgix;
 class Service extends Component
 {
     protected $styles;
+    protected $defaultImgixOptions = [];
     protected $imgix;
 
     public function __construct($data = [])
     {
         parent::__construct($data);
         $this->styles = CraftImgixPicture::getInstance()->settings->imageStyles;
+        $this->defaultImgixOptions = CraftImgixPicture::getInstance()->settings->imgix;
         $this->imgix = Imgix::$plugin->imgixService;
-        // $this->validateStyles();
     }
 
     // Public Methods
@@ -58,13 +62,41 @@ class Service extends Component
 
         $result = [];
         $style = $this->getStyle($key);
+        $attr = null;
+        $imgixOptions = $this->defaultImgixOptions;
 
-        d($style);
-        if (array_key_exists('img', $style)) {
-            $result['img'] = $this->getImageArray($asset, $style['img']);
+        if (array_key_exists('imgix', $style)) {
+            $imgixOptions = array_merge($imgixOptions, $style['imgix']);
+            unset($style['imgix']);
         }
 
-        return $result;
+        if (array_key_exists('attr', $options)) {
+            $attr = $options['attr'];
+            unset($options['attr']);
+        }
+
+
+        if (array_key_exists('sources', $style)) {
+            $result['sources'] = $this->getSourcesArray($asset, $style['sources'], $imgixOptions, $options);
+        }
+
+        if (array_key_exists('img', $style)) {
+            $result['img'] = $this->getImageArray($asset, $style['img'], $imgixOptions, $options);
+
+            unset($options['imgix']);
+
+            $result['img'] = array_merge($result['img'], $options);
+
+            return array_merge($result, [
+                'attr' => $attr,
+            ]);
+        }
+
+        unset($options['imgix']);
+
+        return array_merge($result, $options, [
+            'attr' => $attr,
+        ]);
     }
 
     /*
@@ -72,49 +104,124 @@ class Service extends Component
      */
     public function getTag(Asset $asset = null, $key = 'default', array $options = [])
     {
-        return null;
-    }
-
-    // protected function validateStyle($key, $style)
-    // {
-
-    // }
-
-    // protected function validateStyles()
-    // {
-    //     foreach ($this->styles as $key => $style) {
-    //         if (array_key_exists('sources', $style)) {
-    //             foreach ($style['sources'] as $i => $style) {
-    //                 # code...
-    //             }
-    //         }
-
-    //         if (array_key_exists('img', $style)) {
-
-    //         }
-    //     }
-    // }
-
-    protected function getSrcSet(Asset $asset, $style)
-    {
-        // if (!array_key_exists('widths', $style)) {
-        //     throw new \Exception(Craft::t('craft-imgix-picture', "CraftImgixPicture: Your image style named", ['key' => $key]));
-        // }
-
-        d($style);
-        $srcSet = [];
-        if (array_key_exists('aspectRatio', $style)) {
-
-        } else {
-
+        if (!$asset) {
+            return null;
         }
 
-        return implode(', ', $srcSet);
+        $data = $this->getArray($asset, $key, $options);
+
+        $oldMode = Craft::$app->view->getTemplateMode();
+        Craft::$app->view->setTemplateMode(View::TEMPLATE_MODE_SITE);
+
+        $template = array_key_exists('sources', $data) ? 'craft-imgix-picture/picture' : 'craft-imgix-picture/img';
+
+        if (array_key_exists('attr', $data)) {
+            $data['attr'] = array_map(function($key, $value) {
+                return "{$key}=\"{$value}\"";
+            }, array_keys($data['attr']), array_values($data['attr']));
+
+            $data['attr'] = implode(' ', $data['attr']);
+        }
+
+        $html =  Craft::$app->view->renderTemplate(
+            $template,
+            $data
+        );
+
+        Craft::$app->view->setTemplateMode($oldMode);
+        return Template::raw($html);
     }
 
-    protected function getImageArray(Asset $asset, $style)
+    protected function getSrcSet(Asset $asset, $style, $imgixOptions = [])
     {
-        $test = $this->getSrcSet($asset, $style);
-        dd($test);
+        if (count($style['widths']) < 1) {
+            return null;
+        }
+
+        $srcSet = [];
+        $aspectRatio = $style['aspectRatio'] ?? null;
+
+        $transforms = [];
+
+        foreach ($style['widths'] as $width) {
+            $transform = [
+                'width' => $width,
+            ];
+
+            if ($aspectRatio) {
+                $transform['height'] = intval($width / $aspectRatio);
+            }
+            $transforms[] = $transform;
+        }
+
+        $image = $this->imgix->transformImage($asset, $transforms, $imgixOptions)->toArray();
+
+        if (!$image) {
+            return null;
+        }
+
+        if (!$image['transformed']) {
+            return null;
+        }
+
+        usort($image['transformed'], function ($a, $b) {
+            if ($a['width'] == $b['width']) {
+                return 0;
+            }
+            return ($a['width'] < $b['width']) ? -1 : 1;
+        });
+
+        $srcSet = array_map(function ($item) {
+            return "{$item['url']} {$item['width']}w";
+        }, $image['transformed']);
+
+        return $srcSet;
+    }
+
+    protected function getSourcesArray(Asset $asset, $sources, $imgixOptions = [], $options = [])
+    {
+        return array_map(function ($style) use ($asset, $imgixOptions, $options) {
+            if (array_key_exists('imgix', $style)) {
+                $imgixOptions = array_merge($imgixOptions, $style['imgix']);
+                unset($style['imgix']);
+            }
+
+            if (array_key_exists('imgix', $options)) {
+                $imgixOptions = array_merge($imgixOptions, $options['imgix']);
+                unset($options['imgix']);
+            }
+
+            $srcSet = $this->getSrcSet($asset, $style, $imgixOptions);
+
+            unset($style['aspectRatio']);
+            unset($style['widths']);
+
+            return array_merge($style, [
+                'srcSet' => implode(', ', $srcSet),
+            ]);
+        }, $sources);
+    }
+
+    protected function getImageArray(Asset $asset, $style, $imgixOptions = [], $options = [])
+    {
+        if (array_key_exists('imgix', $style)) {
+            $imgixOptions = array_merge($imgixOptions, $style['imgix']);
+            unset($style['imgix']);
+        }
+
+        if (array_key_exists('imgix', $options)) {
+            $imgixOptions = array_merge($imgixOptions, $options['imgix']);
+            unset($options['imgix']);
+        }
+
+        $srcSet = $this->getSrcSet($asset, $style, $imgixOptions);
+
+        unset($style['aspectRatio']);
+        unset($style['widths']);
+
+        return array_merge($style, [
+            'srcSet' => implode(', ', $srcSet),
+            'src' => $srcSet[0],
+        ]);
     }
 }
