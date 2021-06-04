@@ -42,7 +42,7 @@ with the following code
 ```php
 <?php
 return [
-    // 'variableName' => 'craftImgixPicture', // ovverride craft variable name
+    // 'variableName' => 'craftImgixPicture', // override craft variable name
     'imgix' => [], // Default imgix options
     'imageStyles' => [
         'complex-picture' => [
