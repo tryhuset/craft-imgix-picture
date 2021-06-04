@@ -10,6 +10,7 @@
 
 namespace apt\craftimgixpicture;
 
+use apt\craftimgixpicture\models\Settings;
 use apt\craftimgixpicture\services\Service as ServiceService;
 use apt\craftimgixpicture\variables\CraftImgixPictureVariable;
 use apt\craftimgixpicture\twigextensions\CraftImgixPictureTwigExtension;
@@ -19,7 +20,7 @@ use craft\base\Plugin;
 use craft\services\Plugins;
 use craft\events\PluginEvent;
 use craft\web\twig\variables\CraftVariable;
-
+use Exception;
 use yii\base\Event;
 
 /**
@@ -70,15 +71,22 @@ class CraftImgixPicture extends Plugin
         parent::init();
         self::$plugin = $this;
 
+        $settings = $this->getSettings();
+        if (!$settings->validate()) {
+            foreach ($settings->errors as $error) {
+                throw new Exception("CraftImgixPicture: Settings: {$error[0]}");
+            }
+        }
+
         Craft::$app->view->registerTwigExtension(new CraftImgixPictureTwigExtension());
 
         Event::on(
             CraftVariable::class,
             CraftVariable::EVENT_INIT,
-            function (Event $event) {
+            function (Event $event) use($settings) {
                 /** @var CraftVariable $variable */
                 $variable = $event->sender;
-                $variable->set('craftImgixPicture', CraftImgixPictureVariable::class);
+                $variable->set($settings->variableName, CraftImgixPictureVariable::class);
             }
         );
 
@@ -104,4 +112,8 @@ class CraftImgixPicture extends Plugin
     // Protected Methods
     // =========================================================================
 
+    protected function createSettingsModel()
+    {
+        return new Settings();
+    }
 }

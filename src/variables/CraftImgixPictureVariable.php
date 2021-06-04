@@ -13,6 +13,7 @@ namespace apt\craftimgixpicture\variables;
 use apt\craftimgixpicture\CraftImgixPicture;
 
 use Craft;
+use craft\elements\Asset;
 
 /**
  * @author    thomas@apt.no
@@ -24,16 +25,14 @@ class CraftImgixPictureVariable
     // Public Methods
     // =========================================================================
 
-    /**
-     * @param null $optional
-     * @return string
-     */
-    public function exampleVariable($optional = null)
+
+    public function getArray(Asset $asset = null, $style = 'default', array $options = [])
     {
-        $result = "And away we go to the Twig template...";
-        if ($optional) {
-            $result = "I'm feeling optional today...";
-        }
-        return $result;
+        return CraftImgixPicture::getInstance()->service->getArray($asset, $style, $options);
+    }
+
+    public function getTag(Asset $asset = null, $style = 'default', array $options = [])
+    {
+        return CraftImgixPicture::getInstance()->service->getTag($asset, $style, $options);
     }
 }
