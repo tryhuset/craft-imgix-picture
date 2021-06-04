@@ -43,7 +43,7 @@ with the following code
 <?php
 return [
     // 'variableName' => 'craftImgixPicture', // override craft variable name
-    'imgix' => [], // Default imgix options
+    // 'imgix' => [], // Default imgix options
     'imageStyles' => [
         'complex-picture' => [
             // 'imgix' => [], // Override default imgix options
