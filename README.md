@@ -46,14 +46,14 @@ return [
     'imgix' => [], // Default imgix options
     'imageStyles' => [
         'complex-picture' => [
-            'imgix' => [], // Override default imgix options
+            // 'imgix' => [], // Override default imgix options
             'sources' => [
                 [
                     'media' => '(max-width: 600px)',
                     'aspectRatio' => 4 / 3,
                     'sizes' => '100px',
                     'widths' => [100, 200],
-                    'imgix' => [], // Override imgix options
+                    // 'imgix' => [], // Override imgix options
                 ],
                 [
                     'media' => '(max-width: 1200px)',
@@ -67,7 +67,7 @@ return [
                 'widths' => [260, 260 * 2, 260 * 3],
                 'alt' => 'foo',
                 'attr' => ['class' => 'foo'], // Add your html attributes
-                'imgix' => [], // Override imgix options
+                // 'imgix' => [], // Override imgix options
             ],
         ],
 
