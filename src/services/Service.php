@@ -86,11 +86,20 @@ class Service extends Component
             unset($options['imgix']);
 
             $result['img'] = array_merge($result['img'], $options);
+            if (array_key_exists('attr', $result['img'])) {
+                if ($attr) {
+                    $attr = array_merge($result['img']['attr'], $attr);
+                } else {
+                    $attr = $result['img']['attr'];
+                }
+
+                unset($result['img']['attr']);
+            }
 
             if (!$attr) {
                 return $result;
             }
-
+            
             return array_merge($result, [
                 'attr' => $attr,
             ]);
