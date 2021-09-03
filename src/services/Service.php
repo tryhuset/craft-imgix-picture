@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Craft Imgix Picture plugin for Craft CMS 3.x
  *
@@ -86,20 +87,11 @@ class Service extends Component
             unset($options['imgix']);
 
             $result['img'] = array_merge($result['img'], $options);
-            if (array_key_exists('attr', $result['img'])) {
-                if ($attr) {
-                    $attr = array_merge($result['img']['attr'], $attr);
-                } else {
-                    $attr = $result['img']['attr'];
-                }
-
-                unset($result['img']['attr']);
-            }
 
             if (!$attr) {
                 return $result;
             }
-            
+
             return array_merge($result, [
                 'attr' => $attr,
             ]);
@@ -134,12 +126,22 @@ class Service extends Component
 
             $data['attr'] = implode(' ', $data['attr']);
         }
+        
+        if (array_key_exists('img', $data) && array_key_exists('attr', $data['img'])) {
+            $data['attr'] = array_map(function ($key, $value) {
+                return "{$key}=\"{$value}\"";
+            }, array_keys($data['img']['attr']), array_values($data['img']['attr']));
+
+            unset($data['img']['attr']);
+
+            $data['attr'] = implode(' ', $data['attr']);
+        }
 
         $oldMode = Craft::$app->view->getTemplateMode();
         Craft::$app->view->setTemplateMode(View::TEMPLATE_MODE_SITE);
 
         $template = array_key_exists('sources', $data) ? 'craft-imgix-picture/picture' : 'craft-imgix-picture/img';
-
+        
         $html =  Craft::$app->view->renderTemplate(
             $template,
             $data

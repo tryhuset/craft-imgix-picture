@@ -28,7 +28,14 @@ class CraftImgixPictureVariable
 
     public function getArray(Asset $asset = null, $style = 'default', array $options = [])
     {
-        return CraftImgixPicture::getInstance()->service->getArray($asset, $style, $options);
+        $data = CraftImgixPicture::getInstance()->service->getArray($asset, $style, $options);
+        
+        if ($data && array_key_exists('img', $data) && array_key_exists('attr', $data['img'])) {
+            $data['img'] = array_merge($data['img'], $data['img']['attr']);
+            unset($data['img']['attr']);
+            
+        }
+        return $data;
     }
 
     public function getTag(Asset $asset = null, $style = 'default', array $options = [])
