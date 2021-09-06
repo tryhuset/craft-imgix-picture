@@ -65,7 +65,7 @@ class Settings extends Model
     public function rules()
     {
         return [
-            [['variableName', 'imageStyles'], 'required'],
+            [['variableName'], 'required'],
             ['imgix', 'validateArray'],
             ['imageStyles', 'validateImageStyles']
         ];
