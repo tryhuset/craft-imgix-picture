@@ -1,1 +1,2 @@
-<img{% if attr|default(false) %} {{attr|raw}}{% endif %}{% if img.srcSet|default(false) %} srcset="{{ img.srcSet }}"{% endif %}{% if img.src|default(false) %} src="{{ img.src }}"{% endif %}{% if img.sizes|default(false) %} sizes="{{ img.sizes }}"{% endif %} alt="{{ img.alt|default('') }}" />
+<img {% if attr|default(false) %} {{attr|raw}} {% endif %} {% if img.srcSet|default(false) %} srcset="{{ img.srcSet }}" {% endif %} {% if img.src|default(false) %} src="{{ img.src }}" {% endif %} {% if img.sizes|default(false) %} sizes="{{ img.sizes }}" {% endif %}{% if img.width|default(false) %} width="{{ img.width }}" {% endif %}{% if img.height|default(false) %} height="{{ img.height }}" {% endif %} alt="{{ img.alt|default('') }}"/>
+
