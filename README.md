@@ -66,7 +66,7 @@ return [
                 'sizes' => '50vw',
                 'widths' => [260, 260 * 2, 260 * 3],
                 'alt' => 'foo',
-                'attr' => ['class' => 'foo'], // Add your html attributes
+                'class' => 'foo', // Add your html attributes
                 // 'imgix' => [], // Override imgix options
             ],
         ],
@@ -83,7 +83,7 @@ return [
 
 ## Render html tag
 ```twig
-{{ craft.craftImgixPicture.tag(asset, 'complex-picture', { alt: asset.title, attr: { class: 'bar' } }) }}
+{{ craft.craftImgixPicture.tag(asset, 'complex-picture', { alt: asset.title, class: 'bar' }) }}
 ```
 
 outputs:
@@ -109,7 +109,7 @@ outputs:
 ## Image as array
 
 ```twig
-{% set image = craft.craftImgixPicture.array(asset, 'complex-picture', { alt: asset.title, attr: { class: 'bar' } }) %}
+{% set image = craft.craftImgixPicture.array(asset, 'complex-picture', { alt: asset.title, class: 'bar' }) %}
 ```
 
 outputs:
@@ -134,9 +134,7 @@ outputs:
     srcSet: '....',
     src: '...',
     alt: 'foo',
-    attr: {
-      class: 'bar',
-    }
+    class: 'bar',
   }
 }
 

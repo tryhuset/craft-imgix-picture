@@ -63,19 +63,7 @@ class Service extends Component
 
         $result = [];
         $style = $this->getStyle($key);
-        $attr = null;
         $imgixOptions = $this->defaultImgixOptions;
-
-        if (array_key_exists('imgix', $style)) {
-            $imgixOptions = array_merge($imgixOptions, $style['imgix']);
-            unset($style['imgix']);
-        }
-
-        if (array_key_exists('attr', $options)) {
-            $attr = $options['attr'];
-            unset($options['attr']);
-        }
-
 
         if (array_key_exists('sources', $style)) {
             $result['sources'] = $this->getSourcesArray($asset, $style['sources'], $imgixOptions, $options);
@@ -88,24 +76,33 @@ class Service extends Component
 
             $result['img'] = array_merge($result['img'], $options);
 
-            if (!$attr) {
-                return $result;
-            }
-
-            return array_merge($result, [
-                'attr' => $attr,
-            ]);
+            return $result;
         }
 
         unset($options['imgix']);
 
-        if (!$attr) {
-            return array_merge($result, $options);
-        }
+        return array_merge($result, $options);
+    }
 
-        return array_merge($result, $options, [
-            'attr' => $attr,
-        ]);
+    protected function normalizeAttributes($tag)
+    {
+        $tag = array_filter($tag, function ($attr) {
+            if (is_array($attr)) {
+                return false;
+            }
+            if (is_object($attr)) {
+                return false;
+            }
+
+            return true;
+        });
+
+        $tag = array_map(function ($key, $value) {
+            $key = strtolower($key);
+            return "{$key}=\"{$value}\"";
+        }, array_keys($tag), array_values($tag));
+
+        return implode(' ', $tag);
     }
 
     /*
@@ -119,29 +116,21 @@ class Service extends Component
 
         $data = $this->getArray($asset, $key, $options);
 
-        if (array_key_exists('attr', $data)) {
-            $data['attr'] = array_map(function ($key, $value) {
-                return "{$key}=\"{$value}\"";
-            }, array_keys($data['attr']), array_values($data['attr']));
-
-            $data['attr'] = implode(' ', $data['attr']);
+        if (array_key_exists('sources', $data)) {
+            $data['sources'] = array_map(function ($source) {
+                return $this->normalizeAttributes($source);
+            }, $data['sources']);
         }
-        
-        if (array_key_exists('img', $data) && array_key_exists('attr', $data['img'])) {
-            $data['attr'] = array_map(function ($key, $value) {
-                return "{$key}=\"{$value}\"";
-            }, array_keys($data['img']['attr']), array_values($data['img']['attr']));
 
-            unset($data['img']['attr']);
-
-            $data['attr'] = implode(' ', $data['attr']);
+        if (array_key_exists('img', $data)) {
+            $data['img'] = $this->normalizeAttributes($data['img']);
         }
 
         $oldMode = Craft::$app->view->getTemplateMode();
         Craft::$app->view->setTemplateMode(View::TEMPLATE_MODE_SITE);
 
         $template = array_key_exists('sources', $data) ? 'craft-imgix-picture/picture' : 'craft-imgix-picture/img';
-        
+
         $html =  Craft::$app->view->renderTemplate(
             $template,
             $data
