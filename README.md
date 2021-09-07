@@ -134,7 +134,7 @@ outputs:
     srcSet: '....',
     src: '...',
     alt: 'foo',
-    class: 'bar',
+    className: 'bar',
   }
 }
 

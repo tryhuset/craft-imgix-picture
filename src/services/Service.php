@@ -76,6 +76,14 @@ class Service extends Component
 
             $result['img'] = array_merge($result['img'], $options);
 
+
+            // Rename class to className for react
+            if (array_key_exists('class', $result['img'])) {
+                $result['img']['className'] = $result['img']['class'];
+                unset($result['img']['class']);
+            }
+
+
             return $result;
         }
 
@@ -99,6 +107,9 @@ class Service extends Component
 
         $tag = array_map(function ($key, $value) {
             $key = strtolower($key);
+            if ($key === 'className') {
+                return "class=\"{$value}\"";
+            }
             return "{$key}=\"{$value}\"";
         }, array_keys($tag), array_values($tag));
 
