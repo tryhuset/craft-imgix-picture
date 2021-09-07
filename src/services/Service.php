@@ -107,7 +107,7 @@ class Service extends Component
 
         $tag = array_map(function ($key, $value) {
             $key = strtolower($key);
-            if ($key === 'className') {
+            if ($key === 'classname') {
                 return "class=\"{$value}\"";
             }
             return "{$key}=\"{$value}\"";
