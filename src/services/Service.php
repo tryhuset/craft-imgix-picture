@@ -79,10 +79,11 @@ class Service extends Component
 
             // Rename class to className for react
             if (array_key_exists('class', $result['img'])) {
-                $result['img']['className'] = $result['img']['class'];
+                if (!empty($result['img']['class'])) {
+                    $result['img']['className'] = $result['img']['class'];
+                }
                 unset($result['img']['class']);
             }
-
 
             return $result;
         }
