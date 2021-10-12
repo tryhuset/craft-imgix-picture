@@ -11,14 +11,16 @@
 
 namespace apt\craftimgixpicture\gql\interfaces;
 
-use apt\craftimgixpicture\gql\types\generators\ImgixGenerator;
-
 use craft\gql\base\InterfaceType as BaseInterfaceType;
 use craft\gql\TypeLoader;
 use craft\gql\GqlEntityRegistry;
 
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\Type;
+
+use apt\craftimgixpicture\gql\types\generators\ImgixGenerator;
+use apt\craftimgixpicture\gql\interfaces\SourceInterface;
+use apt\craftimgixpicture\gql\resolvers\SourceResolver;
 
 class ImgixTransformedImageInterface extends BaseInterfaceType
 {
@@ -73,9 +75,16 @@ class ImgixTransformedImageInterface extends BaseInterfaceType
         return array_merge(parent::getFieldDefinitions(), [
             'img' => [
                 'name' => 'img',
-                'type' => Type::listOf(ImgInterface::getType()),
-                'description' => 'The alternative text of the image.',
+                'type' => SourceInterface::getType(),
+                'resolve' => SourceResolver::class . '::resolve',
+                'description' => 'img def 1',
             ],
+            // 'sources' => [
+            //     'name' => 'sources',
+            //     'type' => Type::listOf(SourceInterface::getType()),
+            //     // 'resolve' => SourceResolver::class . '::resolve',
+            //     'description' => 'sources def ',
+            // ],
         ]);
     }
 }

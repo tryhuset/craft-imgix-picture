@@ -3,9 +3,9 @@ namespace apt\craftimgixpicture\gql\types;
 
 use craft\gql\base\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
-use apt\craftimgixpicture\gql\interfaces\ImgInterface;
+use apt\craftimgixpicture\gql\interfaces\SourceInterface;
 
-class ImgType extends ObjectType
+class SourceType extends ObjectType
 {
     /**
      * @inheritdoc
@@ -13,7 +13,7 @@ class ImgType extends ObjectType
     public function __construct(array $config)
     {
         $config['interfaces'] = [
-            ImgInterface::getType(),
+            SourceInterface::getType(),
         ];
 
         parent::__construct($config);
@@ -25,6 +25,11 @@ class ImgType extends ObjectType
     protected function resolve($source, $arguments, $context, ResolveInfo $resolveInfo)
     {
         $fieldName = $resolveInfo->fieldName;
+
+        if (!isset($source[$fieldName])) {
+            return null;
+        }
+
         return $source[$fieldName];
     }
 }

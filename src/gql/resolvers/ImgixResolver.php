@@ -8,10 +8,6 @@ use craft\gql\base\Resolver;
 
 use GraphQL\Type\Definition\ResolveInfo;
 
-// use spacecatninja\imagerx\ImagerX;
-// use spacecatninja\imagerx\exceptions\ImagerException;
-// use spacecatninja\imagerx\services\ImagerService;
-
 use apt\craftimgixpicture\CraftImgixPicture;
 use apt\craftimgixpicture\services\Service as ImgixService;
 
@@ -59,49 +55,13 @@ class ImgixResolver extends Resolver
         if ($asset !== null) {
             try {
                 $result = $service->getArray($asset, $style);
+                // unset($result['sources']);
                 return $result;
             } catch (\Throwable $th) {
                 return null;
             }
-            
-
-            // var_dump($result);
-            // exit;
-
-            
-
-            // return [
-            //     'path' => $asset->id,
-            //     // 'title' => $asset->title,
-            // ];
-
-            return array_merge([
-                'img' => [],
-            ], $result);
-
-
-            return $service->getArray($asset, $style);
-            return null;
-            // try {
-            //     $transformedImages = ImagerX::$plugin->imager->transformImage($asset, $transform);
-            //     return self::prepResults($transformedImages);
-            // } catch (ImagerException $e) {
-            //     Craft::error('An error occured when transforming asset in GraphQL query: ' . $e->getMessage(), __METHOD__);
-            //     return null;
-            // }
         }
 
         return null;
-    }
-
-    private static function prepResults(array $transformedImages): array
-    {
-        $r = [];
-
-        foreach ($transformedImages as $transformedImage) {
-            $r[] = (array)$transformedImage;
-        }
-
-        return $r;
     }
 }

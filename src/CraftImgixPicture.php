@@ -32,6 +32,7 @@ use apt\craftimgixpicture\twigextensions\CraftImgixPictureTwigExtension;
 use apt\craftimgixpicture\gql\resolvers\ImgixResolver;
 use apt\craftimgixpicture\gql\directives\ImgixTransform;
 // use apt\craftimgixpicture\gql\directives\ImagerSrcset;
+use apt\craftimgixpicture\gql\interfaces\SourceInterface;
 use apt\craftimgixpicture\gql\interfaces\ImgixTransformedImageInterface;
 use apt\craftimgixpicture\gql\queries\ImgixQuery;
 // use apt\craftimgixpicture\gql\directives\Imgix as ImgixDirective;
@@ -156,6 +157,7 @@ class CraftImgixPicture extends Plugin
                     'Gql::EVENT_REGISTER_GQL_TYPES',
                     __METHOD__
                 );
+                // $event->types[] = SourceInterface::class;
                 $event->types[] = ImgixTransformedImageInterface::class;
             }
         );

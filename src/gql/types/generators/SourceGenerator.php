@@ -6,27 +6,23 @@ use craft\gql\base\GeneratorInterface;
 use craft\gql\GqlEntityRegistry;
 use craft\gql\TypeLoader;
 
-use apt\craftimgixpicture\gql\arguments\ImgixTransformQueryArguments;
-use apt\craftimgixpicture\gql\interfaces\ImgixTransformedImageInterface;
-use apt\craftimgixpicture\gql\types\ImgType;
+use apt\craftimgixpicture\gql\interfaces\SourceInterface;
+use apt\craftimgixpicture\gql\types\SourceType;
 
-class ImgGenerator implements GeneratorInterface
+class SourceGenerator implements GeneratorInterface
 {
     /**
      * @inheritdoc
      */
     public static function generateTypes($context = null): array
     {
-        $fields = ImgixTransformedImageInterface::getFieldDefinitions();
-        $args = ImgixTransformQueryArguments::getArguments();
+        $fields = SourceInterface::getFieldDefinitions();
         $typeName = self::getName();
 
         $type = GqlEntityRegistry::getEntity($typeName)
-            ?: GqlEntityRegistry::createEntity($typeName, new ImgType([
+            ?: GqlEntityRegistry::createEntity($typeName, new SourceType([
                 'name' => $typeName,
-                'args' => function () use ($args) {
-                    return $args;
-                },
+                'args' => [],
                 'fields' => function () use ($fields) {
                     return $fields;
                 },
@@ -45,6 +41,6 @@ class ImgGenerator implements GeneratorInterface
      */
     public static function getName($context = null): string
     {
-        return 'img';
+        return 'source';
     }
 }

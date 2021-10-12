@@ -1,8 +1,6 @@
 <?php
 namespace apt\craftimgixpicture\gql\interfaces;
 
-use apt\craftimgixpicture\gql\types\generators\ImgGenerator;
-
 use craft\gql\base\InterfaceType as BaseInterfaceType;
 use craft\gql\TypeLoader;
 use craft\gql\GqlEntityRegistry;
@@ -10,14 +8,16 @@ use craft\gql\GqlEntityRegistry;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\Type;
 
-class ImgInterface extends BaseInterfaceType
+use apt\craftimgixpicture\gql\types\generators\SourceGenerator;
+
+class SourceInterface extends BaseInterfaceType
 {
     /**
      * @inheritdoc
      */
     public static function getTypeGenerator(): string
     {
-        return ImgGenerator::class;
+        return SourceGenerator::class;
     }
 
     /**
@@ -34,11 +34,11 @@ class ImgInterface extends BaseInterfaceType
             'fields' => self::class . '::getFieldDefinitions',
             'description' => 'This is the interface implemented by CraftImgixPicture.',
             'resolveType' => function (array $value) {
-                return GqlEntityRegistry::getEntity(ImgGenerator::getName());
+                return GqlEntityRegistry::getEntity(SourceGenerator::getName());
             },
         ]));
-
-        foreach (ImgGenerator::generateTypes() as $typeName => $generatedType) {
+        // var_dump($type);
+        foreach (SourceGenerator::generateTypes() as $typeName => $generatedType) {
             TypeLoader::registerType($typeName, function () use ($generatedType) {
                 return $generatedType;
             });
@@ -52,15 +52,20 @@ class ImgInterface extends BaseInterfaceType
      */
     public static function getName(): string
     {
-        return 'ImgInterface';
+        return 'SourceInterface';
     }
 
     /**
      * @inheritdoc
      */
-    public static function getFieldDefinitions(): array
+    public static function getFieldDefinitions(): array 
     {
         return array_merge(parent::getFieldDefinitions(), [
+            'media' => [
+                'name' => 'media',
+                'type' => Type::string(),
+                'description' => 'The alternative text of the image.',
+            ],
             'sizes' => [
                 'name' => 'sizes',
                 'type' => Type::string(),
@@ -81,11 +86,11 @@ class ImgInterface extends BaseInterfaceType
                 'type' => Type::string(),
                 'description' => 'The alternative text of the image.',
             ],
-            // 'className' => [
-            //     'name' => 'className',
-            //     'type' => Type::string(),
-            //     'description' => 'The alternative text of the image.',
-            // ]
+            'className' => [
+                'name' => 'className',
+                'type' => Type::string(),
+                'description' => 'The alternative text of the image.',
+            ]
         ]);
     }
 }
