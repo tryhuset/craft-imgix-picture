@@ -10,23 +10,31 @@
 
 namespace apt\craftimgixpicture;
 
-use apt\craftimgixpicture\models\Settings;
-use apt\craftimgixpicture\services\Service as ServiceService;
-use apt\craftimgixpicture\variables\CraftImgixPictureVariable;
-use apt\craftimgixpicture\twigextensions\CraftImgixPictureTwigExtension;
-use apt\craftimgixpicture\gql\directives\Imgix as ImgixDirective;
-
 use Craft;
 use craft\base\Plugin;
 use craft\services\Plugins;
 use craft\services\Gql;
 use craft\events\PluginEvent;
 use craft\events\RegisterTemplateRootsEvent;
+use craft\events\RegisterGqlTypesEvent;
+use craft\events\RegisterGqlQueriesEvent;
 use craft\events\RegisterGqlDirectivesEvent;
 use craft\web\View;
 use craft\web\twig\variables\CraftVariable;
 use Exception;
 use yii\base\Event;
+
+use apt\craftimgixpicture\models\Settings;
+use apt\craftimgixpicture\services\Service as ServiceService;
+use apt\craftimgixpicture\variables\CraftImgixPictureVariable;
+use apt\craftimgixpicture\twigextensions\CraftImgixPictureTwigExtension;
+
+use apt\craftimgixpicture\gql\resolvers\ImgixResolver;
+use apt\craftimgixpicture\gql\directives\ImgixTransform;
+// use apt\craftimgixpicture\gql\directives\ImagerSrcset;
+use apt\craftimgixpicture\gql\interfaces\ImgixTransformedImageInterface;
+use apt\craftimgixpicture\gql\queries\ImgixQuery;
+// use apt\craftimgixpicture\gql\directives\Imgix as ImgixDirective;
 
 /**
  * Class CraftImgixPicture
@@ -111,13 +119,15 @@ class CraftImgixPicture extends Plugin
             }
         );
 
-        Event::on(
-            Gql::class,
-            Gql::EVENT_REGISTER_GQL_DIRECTIVES,
-            function (RegisterGqlDirectivesEvent $event) {
-                $event->directives[] = ImgixDirective::class;
-            }
-        );
+        // Event::on(
+        //     Gql::class,
+        //     Gql::EVENT_REGISTER_GQL_DIRECTIVES,
+        //     function (RegisterGqlDirectivesEvent $event) {
+        //         $event->directives[] = ImgixDirective::class;
+        //     }
+        // );
+
+        $this->registerGraphQL();
 
         Craft::info(
             Craft::t(
@@ -131,6 +141,70 @@ class CraftImgixPicture extends Plugin
 
     // Protected Methods
     // =========================================================================
+
+    /**
+     * Register GraphQL event listeners
+     */
+    private function registerGraphQL(): void
+    {
+        // Register types
+        Event::on(
+            Gql::class,
+            Gql::EVENT_REGISTER_GQL_TYPES,
+            static function (RegisterGqlTypesEvent $event) {
+                Craft::debug(
+                    'Gql::EVENT_REGISTER_GQL_TYPES',
+                    __METHOD__
+                );
+                $event->types[] = ImgixTransformedImageInterface::class;
+            }
+        );
+
+        // Register query
+        Event::on(
+            Gql::class,
+            Gql::EVENT_REGISTER_GQL_QUERIES,
+            static function (RegisterGqlQueriesEvent $event) {
+                $queries = ImgixQuery::getQueries();
+                foreach ($queries as $key => $value) {
+                    $event->queries[$key] = $value;
+                }
+            }
+        );
+
+        // Register directives
+        // Event::on(
+        //     Gql::class,
+        //     Gql::EVENT_REGISTER_GQL_DIRECTIVES,
+        //     static function (RegisterGqlDirectivesEvent $event) {
+        //         $event->directives[] = ImagerTransform::class;
+        //         $event->directives[] = ImagerSrcset::class;
+        //     }
+        // );
+
+        Event::on(
+            \craft\gql\TypeManager::class,
+            \craft\gql\TypeManager::EVENT_DEFINE_GQL_TYPE_FIELDS,
+            static function (\craft\events\DefineGqlTypeFieldsEvent $event) {
+                if ($event->typeName !== 'AssetInterface') {
+                    return;
+                }
+                $event->fields['imgixTransform'] = [
+                    'name' => 'imgixTransform',
+                    'type' => \GraphQL\Type\Definition\Type::listOf(ImgixTransformedImageInterface::getType()),
+                    'args' => [
+                        'style' => [
+                            'name' => 'style',
+                            'type' => \GraphQL\Type\Definition\Type::string(),
+                            'description' => 'The handle of the named transform you want to generate.'
+                        ],
+                    ],
+                    'resolve' => ImgixResolver::class . '::resolve',
+                    'description' => 'Returns a list of images produced from the named CraftImgixPicture transform.',
+                ];
+            }
+        );
+    }
 
     protected function createSettingsModel()
     {

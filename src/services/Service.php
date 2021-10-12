@@ -28,6 +28,8 @@ use superbig\imgix\Imgix;
  */
 class Service extends Component
 {
+    public static $SAFE_FILEFORMATS = ['jpg', 'jpeg', 'gif', 'png'];
+
     protected $styles;
     protected $defaultImgixOptions = [];
     protected $imgix;

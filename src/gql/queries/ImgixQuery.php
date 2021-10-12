@@ -14,9 +14,9 @@ use craft\gql\base\Query;
 
 use GraphQL\Type\Definition\Type;
 
-use spacecatninja\imagerx\gql\arguments\ImagerTransformQueryArguments;
-use spacecatninja\imagerx\gql\interfaces\ImagerTransformedImageInterface;
-use spacecatninja\imagerx\gql\resolvers\ImagerResolver;
+use apt\craftimgixpicture\gql\arguments\ImgixTransformQueryArguments;
+use apt\craftimgixpicture\gql\interfaces\ImgixTransformedImageInterface;
+use apt\craftimgixpicture\gql\resolvers\ImgixResolver;
 
 class ImgixQuery extends Query
 {
@@ -26,10 +26,10 @@ class ImgixQuery extends Query
     public static function getQueries($checkToken = true): array
     {
         return [
-            'imagerTransform' => [
-                'type' => Type::listOf(ImagerTransformedImageInterface::getType()),
-                'args' => ImagerTransformQueryArguments::getArguments(),
-                'resolve' => ImagerResolver::class . '::resolve',
+            'imgxTransform' => [
+                'type' => Type::listOf(ImgixTransformedImageInterface::getType()),
+                'args' => ImgixTransformQueryArguments::getArguments(),
+                'resolve' => ImgixResolver::class . '::resolve',
                 'description' => 'This query is used to query for Imager X transforms.'
             ],
         ];

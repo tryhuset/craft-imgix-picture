@@ -8,19 +8,23 @@ use craft\gql\base\Resolver;
 
 use GraphQL\Type\Definition\ResolveInfo;
 
-use spacecatninja\imagerx\ImagerX;
-use spacecatninja\imagerx\exceptions\ImagerException;
-use spacecatninja\imagerx\services\ImagerService;
+// use spacecatninja\imagerx\ImagerX;
+// use spacecatninja\imagerx\exceptions\ImagerException;
+// use spacecatninja\imagerx\services\ImagerService;
 
-class ImagerResolver extends Resolver
+use apt\craftimgixpicture\CraftImgixPicture;
+use apt\craftimgixpicture\services\Service as ImgixService;
+
+class ImgixResolver extends Resolver
 {
     /**
      * @inheritDoc
      */
     public static function resolve($source, array $arguments, $context, ResolveInfo $resolveInfo)
     {
+        $service = CraftImgixPicture::getInstance()->service;
         $asset = null;
-        $transform = $arguments['transform'];
+        $style = $arguments['style'];
 
         if ($source instanceof Asset) {
             // If our source is an Asset, use it directly
@@ -47,19 +51,44 @@ class ImagerResolver extends Resolver
         }
 
         if ($asset instanceof Asset) {
-            if ($asset->kind !== 'image' || !\in_array(strtolower($asset->getExtension()), ImagerService::getConfig()->safeFileFormats, true)) {
+            if ($asset->kind !== 'image' || !\in_array(strtolower($asset->getExtension()), ImgixService::$SAFE_FILEFORMATS, true)) {
                 return null;
             }
         }
 
         if ($asset !== null) {
             try {
-                $transformedImages = ImagerX::$plugin->imager->transformImage($asset, $transform);
-                return self::prepResults($transformedImages);
-            } catch (ImagerException $e) {
-                Craft::error('An error occured when transforming asset in GraphQL query: ' . $e->getMessage(), __METHOD__);
+                $result = $service->getArray($asset, $style);
+                return $result;
+            } catch (\Throwable $th) {
                 return null;
             }
+            
+
+            // var_dump($result);
+            // exit;
+
+            
+
+            // return [
+            //     'path' => $asset->id,
+            //     // 'title' => $asset->title,
+            // ];
+
+            return array_merge([
+                'img' => [],
+            ], $result);
+
+
+            return $service->getArray($asset, $style);
+            return null;
+            // try {
+            //     $transformedImages = ImagerX::$plugin->imager->transformImage($asset, $transform);
+            //     return self::prepResults($transformedImages);
+            // } catch (ImagerException $e) {
+            //     Craft::error('An error occured when transforming asset in GraphQL query: ' . $e->getMessage(), __METHOD__);
+            //     return null;
+            // }
         }
 
         return null;
