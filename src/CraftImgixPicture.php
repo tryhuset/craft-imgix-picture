@@ -14,12 +14,15 @@ use apt\craftimgixpicture\models\Settings;
 use apt\craftimgixpicture\services\Service as ServiceService;
 use apt\craftimgixpicture\variables\CraftImgixPictureVariable;
 use apt\craftimgixpicture\twigextensions\CraftImgixPictureTwigExtension;
+use apt\craftimgixpicture\gql\directives\Imgix as ImgixDirective;
 
 use Craft;
 use craft\base\Plugin;
 use craft\services\Plugins;
+use craft\services\Gql;
 use craft\events\PluginEvent;
 use craft\events\RegisterTemplateRootsEvent;
+use craft\events\RegisterGqlDirectivesEvent;
 use craft\web\View;
 use craft\web\twig\variables\CraftVariable;
 use Exception;
@@ -105,6 +108,14 @@ class CraftImgixPicture extends Plugin
             function (PluginEvent $event) {
                 if ($event->plugin === $this) {
                 }
+            }
+        );
+
+        Event::on(
+            Gql::class,
+            Gql::EVENT_REGISTER_GQL_DIRECTIVES,
+            function (RegisterGqlDirectivesEvent $event) {
+                $event->directives[] = ImgixDirective::class;
             }
         );
 
