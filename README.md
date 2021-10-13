@@ -158,3 +158,78 @@ outputs:
 ```
 
 Brought to you by [thomas@apt.no](https://apt.no)
+
+## GraphQL
+
+Query
+
+```javascript
+
+{
+  entry(section: "homepage") {
+    id
+    title
+    ... on homepage_homepage_Entry {
+      mainImage {
+        id
+        picture: imgixPicture(style: "thumb") {
+          sources {
+            media
+            srcSet
+            sizes
+          }
+          img {
+            alt
+            src
+            srcSet
+            sizes
+          }
+        }
+      }
+    }
+  }
+}
+
+```
+
+outputs:
+
+```javascript
+
+{
+  "data": {
+    "entry": {
+      "id": "3",
+      "title": "Homepage",
+      "mainImage": [
+        {
+          "id": "17",
+          "picture": {
+            "sources": [
+              {
+                "media": "(max-width: 600px)",
+                "srcSet": "...",
+                "sizes": "100px"
+              },
+              {
+                "media": "(max-width: 1200px)",
+                "srcSet": "...",
+                "sizes": "300px"
+              }
+            ],
+            "img": {
+              "alt": "IMG 0120",
+              "src": "...",
+              "srcSet": "...",
+              "sizes": "50vw",
+              "alt": "foo",
+              "className": "bar"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+
+```
