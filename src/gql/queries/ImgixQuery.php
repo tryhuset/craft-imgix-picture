@@ -12,8 +12,6 @@ namespace apt\craftimgixpicture\gql\queries;
 
 use craft\gql\base\Query;
 
-use GraphQL\Type\Definition\Type;
-
 use apt\craftimgixpicture\gql\arguments\ImgixTransformQueryArguments;
 use apt\craftimgixpicture\gql\interfaces\ImgixTransformedImageInterface;
 use apt\craftimgixpicture\gql\resolvers\ImgixResolver;
@@ -27,7 +25,7 @@ class ImgixQuery extends Query
     {
         return [
             'imgxTransform' => [
-                'type' => Type::listOf(ImgixTransformedImageInterface::getType()),
+                'type' => ImgixTransformedImageInterface::getType(),
                 'args' => ImgixTransformQueryArguments::getArguments(),
                 'resolve' => ImgixResolver::class . '::resolve',
                 'description' => 'This query is used to query for Imager X transforms.'

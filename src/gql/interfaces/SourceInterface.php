@@ -37,7 +37,7 @@ class SourceInterface extends BaseInterfaceType
                 return GqlEntityRegistry::getEntity(SourceGenerator::getName());
             },
         ]));
-        // var_dump($type);
+        
         foreach (SourceGenerator::generateTypes() as $typeName => $generatedType) {
             TypeLoader::registerType($typeName, function () use ($generatedType) {
                 return $generatedType;

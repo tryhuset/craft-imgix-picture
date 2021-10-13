@@ -76,15 +76,25 @@ class ImgixTransformedImageInterface extends BaseInterfaceType
             'img' => [
                 'name' => 'img',
                 'type' => SourceInterface::getType(),
-                'resolve' => SourceResolver::class . '::resolve',
+                'resolve' => function($source) {
+                    if (isset($source['img'])) {
+                        return $source['img'];
+                    }
+                    return null;
+                },
                 'description' => 'img def 1',
             ],
-            // 'sources' => [
-            //     'name' => 'sources',
-            //     'type' => Type::listOf(SourceInterface::getType()),
-            //     // 'resolve' => SourceResolver::class . '::resolve',
-            //     'description' => 'sources def ',
-            // ],
+            'sources' => [
+                'name' => 'sources',
+                'type' => Type::listOf(SourceInterface::getType()),
+                'resolve' => function ($source) {
+                    if (isset($source['sources'])) {
+                        return $source['sources'];
+                    }
+                    return null;
+                },
+                'description' => 'sources def ',
+            ],
         ]);
     }
 }
