@@ -54,6 +54,11 @@ class ImgixResolver extends Resolver
 
         if ($asset !== null) {
             try {
+                $result = $service->getArray($asset, $style);
+
+                return array_merge([
+                    'id' => $asset->id,
+                ], $result);
                 return $service->getArray($asset, $style);
             } catch (\Throwable $th) {
                 return null;

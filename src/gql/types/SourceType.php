@@ -25,6 +25,10 @@ class SourceType extends ObjectType
     protected function resolve($source, $arguments, $context, ResolveInfo $resolveInfo)
     {
         $fieldName = $resolveInfo->fieldName;
-        return $source[$fieldName];
+        if (isset($source[$fieldName])) {
+            return $source[$fieldName];
+        }
+
+        return null;
     }
 }

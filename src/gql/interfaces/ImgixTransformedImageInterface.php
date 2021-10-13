@@ -20,7 +20,6 @@ use GraphQL\Type\Definition\Type;
 
 use apt\craftimgixpicture\gql\types\generators\ImgixGenerator;
 use apt\craftimgixpicture\gql\interfaces\SourceInterface;
-use apt\craftimgixpicture\gql\resolvers\SourceResolver;
 
 class ImgixTransformedImageInterface extends BaseInterfaceType
 {
@@ -73,6 +72,11 @@ class ImgixTransformedImageInterface extends BaseInterfaceType
     public static function getFieldDefinitions(): array
     {
         return array_merge(parent::getFieldDefinitions(), [
+            'id' => [
+                'name' => 'id',
+                'type' => Type::string(),
+                'description' => 'Id of Asset',
+            ],
             'img' => [
                 'name' => 'img',
                 'type' => SourceInterface::getType(),
@@ -82,7 +86,7 @@ class ImgixTransformedImageInterface extends BaseInterfaceType
                     }
                     return null;
                 },
-                'description' => 'img def 1',
+                'description' => 'The <img> attributes of a <picture>',
             ],
             'sources' => [
                 'name' => 'sources',
@@ -93,7 +97,7 @@ class ImgixTransformedImageInterface extends BaseInterfaceType
                     }
                     return null;
                 },
-                'description' => 'sources def ',
+                'description' => 'List of <source> attributes for a <picture>',
             ],
         ]);
     }
