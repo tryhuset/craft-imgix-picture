@@ -12,16 +12,6 @@ class ImgixTransformQueryArguments extends Arguments
     public static function getArguments(): array
     {
         return [
-            'id' => [
-                'name' => 'id',
-                'type' => Type::int(),
-                'description' => 'The asset id to transform.'
-            ],
-            'url' => [
-                'name' => 'url',
-                'type' => Type::string(),
-                'description' => 'The asset url to transform.'
-            ],
             'style' => [
                 'name' => 'style',
                 'type' => Type::string(),

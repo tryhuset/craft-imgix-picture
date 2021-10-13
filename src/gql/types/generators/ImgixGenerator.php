@@ -30,7 +30,7 @@ class ImgixGenerator implements GeneratorInterface
                 'fields' => function () use ($fields) {
                     return $fields;
                 },
-                'description' => 'This entity has all the Imager X transform image interface fields.',
+                'description' => 'This entity has all the CraftImgixPicture imgix interface fields.',
             ]));
 
         TypeLoader::registerType($typeName, function () use ($type) {

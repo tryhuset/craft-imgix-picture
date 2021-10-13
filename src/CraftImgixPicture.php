@@ -26,7 +26,7 @@ use apt\craftimgixpicture\variables\CraftImgixPictureVariable;
 use apt\craftimgixpicture\twigextensions\CraftImgixPictureTwigExtension;
 
 use apt\craftimgixpicture\gql\resolvers\ImgixResolver;
-
+use apt\craftimgixpicture\gql\arguments\ImgixTransformQueryArguments;
 use apt\craftimgixpicture\gql\interfaces\ImgixTransformedImageInterface;
 
 /**
@@ -142,13 +142,7 @@ class CraftImgixPicture extends Plugin
                 $event->fields['imgixPicture'] = [
                     'name' => 'imgixPicture',
                     'type' => ImgixTransformedImageInterface::getType(),
-                    'args' => [
-                        'style' => [
-                            'name' => 'style',
-                            'type' => \GraphQL\Type\Definition\Type::string(),
-                            'description' => 'The handle of the named transform you want to generate.'
-                        ],
-                    ],
+                    'args' => ImgixTransformQueryArguments::getArguments(),
                     'resolve' => ImgixResolver::class . '::resolve',
                     'description' => 'Returns a list of images produced from the named CraftImgixPicture transform.',
                 ];
