@@ -90,6 +90,11 @@ class SourceInterface extends BaseInterfaceType
                 'name' => 'className',
                 'type' => Type::string(),
                 'description' => 'The alternative text of the image.',
+            ],
+            'loading' => [
+                'name' => 'loading',
+                'type' => Type::string(),
+                'description' => 'Indicates how the browser should load the image.',
             ]
         ]);
     }
