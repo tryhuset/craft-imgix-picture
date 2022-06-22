@@ -154,6 +154,26 @@ class Service extends Component
         return Template::raw($html);
     }
 
+    public function getPreload(Asset $asset = null, $key = 'default', array $options = [])
+    {
+        if (!$asset) {
+            return null;
+        }
+
+        $data = $this->getArray($asset, $key, $options);
+
+        $oldMode = Craft::$app->view->getTemplateMode();
+        Craft::$app->view->setTemplateMode(View::TEMPLATE_MODE_SITE);
+
+        $html =  Craft::$app->view->renderTemplate(
+            'craft-imgix-picture/preload',
+            $data
+        );
+
+        Craft::$app->view->setTemplateMode($oldMode);
+        return Template::raw($html);
+    }
+
     protected function getSrcSet(Asset $asset, $style, $imgixOptions = [])
     {
         if (count($style['widths']) < 1) {
@@ -246,6 +266,8 @@ class Service extends Component
 
         $srcSet = $this->getSrcSet($asset, $style, $imgixOptions);
         $src = array_shift($srcSet);
+
+        $src = preg_replace('/(.*) (\d*w$)/', '$1', $src);
 
         unset($style['aspectRatio']);
         unset($style['widths']);

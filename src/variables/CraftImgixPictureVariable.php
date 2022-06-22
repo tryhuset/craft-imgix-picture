@@ -35,4 +35,9 @@ class CraftImgixPictureVariable
     {
         return CraftImgixPicture::getInstance()->service->getTag($asset, $style, $options);
     }
+
+    public function getPreload(Asset $asset = null, $style = 'default', array $options = [])
+    {
+        return CraftImgixPicture::getInstance()->service->getPreload($asset, $style, $options);
+    }
 }

@@ -1,0 +1,14 @@
+
+
+{% set img = img|default %}
+{% set sources = sources|default([]) %}
+
+{% if img %}
+    <link rel="preload" href="{{ img.src }}" as="image"{% if img.srcSet|default %} imagesrcset="{{ img.srcSet }}"{% endif %}{% if img.sizes|default %} imagesizes="{{ img.sizes }}"{% endif %}{% if img.media|default %} media="{{ img.media }}"{% endif %}>
+{% endif %}
+
+{% for source in sources %}
+    <link rel="preload" as="image"{% if source.srcSet|default %} imagesrcset="{{ source.srcSet }}"{% endif %}{% if source.sizes|default %} imagesizes="{{ source.sizes }}"{% endif %}{% if source.media|default %} media="{{ source.media }}"{% endif %}>
+{% endfor %}
+
+
