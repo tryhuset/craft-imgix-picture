@@ -71,7 +71,7 @@ return [
             ],
         ],
 
-        'simple-image': [
+        'simple-image' => [
           'img' => [
                 'widths' => [260],
                 'alt' => 'foo',
