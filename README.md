@@ -83,13 +83,13 @@ return [
 
 ## Render html tag
 ```twig
-{{ craft.craftImgixPicture.tag(asset, 'complex-picture', { alt: asset.title, class: 'bar' }) }}
+{{ craft.craftImgixPicture.tag(asset, 'complex-picture', { alt: asset.title, pictureClass: 'foo', class: 'bar' }) }}
 ```
 
 outputs:
 
 ```html
-<picture>
+<picture class="foo">
   <source srcset="..." sizes="100vw" media="(max-width: 600px)" />
   <source srcset="..." sizes="300px" media="(max-width: 1200px)" />
   <img class="bar" srcset="..." src="..." sizes="50vw" alt="qux" />
@@ -109,7 +109,7 @@ outputs:
 ## Image as array
 
 ```twig
-{% set image = craft.craftImgixPicture.array(asset, 'complex-picture', { alt: asset.title, class: 'bar' }) %}
+{% set image = craft.craftImgixPicture.array(asset, 'complex-picture', { alt: asset.title, pictureClass: 'foo', class: 'bar' }) %}
 ```
 
 outputs:
@@ -117,6 +117,7 @@ outputs:
 ```javascript
 
 {
+  class: 'foo',
   sources: [
     {
       media: "(max-width: 600px)",

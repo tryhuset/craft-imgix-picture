@@ -67,6 +67,13 @@ class Service extends Component
         $style = $this->getStyle($key);
         $imgixOptions = $this->defaultImgixOptions;
 
+        $pictureClass = null;
+
+        if (array_key_exists('pictureClass', $options)) {
+            $pictureClass = $options['pictureClass'];
+            unset($options['pictureClass']);
+        }
+
         if (array_key_exists('sources', $style)) {
             $result['sources'] = $this->getSourcesArray($asset, $style['sources'], $imgixOptions, $options);
         }
@@ -87,10 +94,18 @@ class Service extends Component
                 unset($result['img']['class']);
             }
 
+            if ($pictureClass) {
+                $result['class'] = $pictureClass;
+            }
+
             return $result;
         }
 
         unset($options['imgix']);
+
+        if ($pictureClass) {
+            $options['class'] = $pictureClass;
+        }
 
         return array_merge($result, $options);
     }

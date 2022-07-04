@@ -1,4 +1,4 @@
-<picture>
+<picture{% if class|default %} class="{{ class }}"{% endif %}>
     {% for source in sources %}
         <source {{ source|raw }} />
     {% endfor %}
