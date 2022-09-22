@@ -1,16 +1,35 @@
 <?php
 namespace apt\craftimgixpicture\models;
 
+
 use Craft;
 use craft\base\Model;
+use craft\helpers\App;
 
 class Settings extends Model
 {
     public $variableName = 'craftImgixPicture';
 
-    public $imgix = [];
+    public $apiKey = '';
+
+    public $domains = [];
+
+    public $signedToken = '';
+
+    public $lazyLoadPrefix = '';
+
+    public $options = [];
 
     public $imageStyles = [];
+
+    public function init() : void
+    {
+        parent::init();
+
+        if (!empty($this->apiKey) && strlen($this->apiKey) < 50) {
+            \Craft::$app->deprecator->log(__METHOD__, 'You appear to be using an API key for v1 of the Imgix API. v1 has been deprecated. You need to generate a new one from https://dashboard.imgix.com/api-keys/new, with permissions to purge, and replace the old one. See https://blog.imgix.com/2020/10/16/api-deprecation for more information.');
+        }
+    }
 
     protected function validateSource($attribute, $key, $source)
     {
@@ -49,6 +68,17 @@ class Settings extends Model
         }
     }
 
+    public function getApiKey()
+    {
+        $apiKey = App::parseEnv($this->apiKey);
+
+        if (!empty($apiKey) && strlen($apiKey) < 50) {
+            \Craft::$app->deprecator->log(__METHOD__, 'You appear to be using an deprecated API key for th eImgix API. You need to generate a new one from https://dashboard.imgix.com/api-keys/new, with permissions to purge, and replace the old one. See https://blog.imgix.com/2020/10/16/api-deprecation for more information.');
+        }
+
+        return $apiKey;
+    }
+
     public function validateImageStyles($attribute)
     {
         foreach ($this->$attribute as $key => $style) {
@@ -62,11 +92,16 @@ class Settings extends Model
         }
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
-            [['variableName'], 'required'],
-            ['imgix', 'validateArray'],
+            ['domains', 'default', 'value' => []],
+            ['signedToken', 'string'],
+            ['signedToken', 'default', 'value' => ''],
+            ['lazyLoadPrefix', 'string'],
+            ['lazyLoadPrefix', 'default', 'value' => ''],
+            ['variableName', 'required'],
+            [['domains', 'options'], 'validateArray'],
             ['imageStyles', 'validateImageStyles']
         ];
     }

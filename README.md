@@ -1,4 +1,4 @@
-# Craft Imgix Picture plugin for Craft CMS 3.x
+# Craft Imgix Picture plugin for Craft CMS 4.x
 
 Create responsive image tags and json objects from config file, using the imgIX service.
 
@@ -43,17 +43,30 @@ with the following code
 <?php
 return [
     // 'variableName' => 'craftImgixPicture', // override craft variable name
-    // 'imgix' => [], // Default imgix options
+
+    // Imgix API key
+    'apiKey'         => '',
+
+    // Volume handles mapped to Imgix domains
+    'domains'   => [],
+
+    // Imgix signed URLs token
+    'signedToken' => '',
+
+    // Lazy load attribute prefix
+    'lazyLoadPrefix' => '',
+
+    // 'options' => [], // Default imgix options
     'imageStyles' => [
         'complex-picture' => [
-            // 'imgix' => [], // Override default imgix options
+            // 'options' => [], // Override default imgix options
             'sources' => [
                 [
                     'media' => '(max-width: 600px)',
                     'aspectRatio' => 4 / 3,
                     'sizes' => '100px',
                     'widths' => [100, 200],
-                    // 'imgix' => [], // Override imgix options
+                    // 'options' => [], // Override imgix options
                 ],
                 [
                     'media' => '(max-width: 1200px)',
@@ -67,7 +80,7 @@ return [
                 'widths' => [260, 260 * 2, 260 * 3],
                 'alt' => 'foo',
                 'class' => 'foo', // Add your html attributes
-                // 'imgix' => [], // Override imgix options
+                // 'options' => [], // Override imgix options
             ],
         ],
 

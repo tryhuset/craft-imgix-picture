@@ -19,7 +19,7 @@ use craft\elements\Asset;
 use craft\web\View;
 use craft\helpers\Template;
 
-use superbig\imgix\Imgix;
+// use superbig\imgix\Imgix;
 
 /**
  * @author    thomas@apt.no
@@ -36,10 +36,11 @@ class Service extends Component
 
     public function __construct($data = [])
     {
+
         parent::__construct($data);
         $this->styles = CraftImgixPicture::getInstance()->settings->imageStyles;
-        $this->defaultImgixOptions = CraftImgixPicture::getInstance()->settings->imgix;
-        $this->imgix = Imgix::$plugin->imgixService;
+        $this->defaultImgixOptions = CraftImgixPicture::getInstance()->settings->options;
+        $this->imgix = CraftImgixPicture::getInstance()->imgix;
     }
 
     // Public Methods

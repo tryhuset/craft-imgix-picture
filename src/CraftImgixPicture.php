@@ -12,16 +12,25 @@ namespace apt\craftimgixpicture;
 
 use Craft;
 use craft\base\Plugin;
+use craft\base\Element;
 use craft\services\Plugins;
+use craft\services\Assets;
+use craft\services\Elements;
 use craft\events\PluginEvent;
 use craft\events\RegisterTemplateRootsEvent;
+use craft\events\ElementEvent;
+use craft\events\RegisterElementActionsEvent;
+use craft\events\ReplaceAssetEvent;
+use craft\elements\Asset;
 use craft\web\View;
 use craft\web\twig\variables\CraftVariable;
 use Exception;
 use yii\base\Event;
 
+use apt\craftimgixpicture\actions\ImgixPurgeAction;
 use apt\craftimgixpicture\models\Settings;
 use apt\craftimgixpicture\services\Service as ServiceService;
+use apt\craftimgixpicture\services\Imgix as ImgixService;
 use apt\craftimgixpicture\variables\CraftImgixPictureVariable;
 use apt\craftimgixpicture\twigextensions\CraftImgixPictureTwigExtension;
 
@@ -37,6 +46,7 @@ use apt\craftimgixpicture\gql\interfaces\ImgixTransformedImageInterface;
  * @since     1.0.0
  *
  * @property  ServiceService $service
+ * @property  ImgixService $imgix
  */
 class CraftImgixPicture extends Plugin
 {
@@ -54,17 +64,17 @@ class CraftImgixPicture extends Plugin
     /**
      * @var string
      */
-    public $schemaVersion = '1.0.0';
+    public string $schemaVersion = '1.0.0';
 
     /**
      * @var bool
      */
-    public $hasCpSettings = false;
+    public bool $hasCpSettings = false;
 
     /**
      * @var bool
      */
-    public $hasCpSection = false;
+    public bool $hasCpSection = false;
 
     // Public Methods
     // =========================================================================
@@ -114,6 +124,67 @@ class CraftImgixPicture extends Plugin
 
         $this->registerGraphQL();
 
+        Event::on(
+            Elements::class,
+            Elements::EVENT_BEFORE_SAVE_ELEMENT,
+            function (ElementEvent $event) {
+                Craft::debug(
+                    'Elements::EVENT_BEFORE_SAVE_ELEMENT',
+                    __METHOD__
+                );
+
+                /** @var Element $element */
+                $element      = $event->element;
+                $isNewElement = $event->isNew;
+
+                if ($element instanceof Asset && !$isNewElement) {
+                    CraftImgixPicture::$plugin->imgix->onSaveAsset($element);
+                }
+            }
+        );
+
+        Event::on(
+            Elements::class,
+            Elements::EVENT_BEFORE_DELETE_ELEMENT,
+            function (ElementEvent $event) {
+                Craft::debug(
+                    'Elements::EVENT_BEFORE_DELETE_ELEMENT',
+                    __METHOD__
+                );
+
+                /** @var Element $element */
+                $element      = $event->element;
+                $isNewElement = $event->isNew;
+
+                if ($element instanceof Asset) {
+                    CraftImgixPicture::$plugin->imgixService->onDeleteAsset($element);
+                }
+            }
+        );
+
+        Event::on(
+            Assets::class,
+            Assets::EVENT_BEFORE_REPLACE_ASSET,
+            function (ReplaceAssetEvent $event) {
+                Craft::debug(
+                    'Assets::EVENT_BEFORE_REPLACE_ASSET',
+                    __METHOD__
+                );
+                /** @var Asset $element */
+                $element = $event->asset;
+
+                CraftImgixPicture::$plugin->imgixService->onSaveAsset($element);
+            }
+        );
+
+        Event::on(
+            Asset::class,
+            Element::EVENT_REGISTER_ACTIONS,
+            function (RegisterElementActionsEvent $event) {
+                $event->actions[] = new ImgixPurgeAction();
+            }
+        );
+
         Craft::info(
             Craft::t(
                 'craft-imgix-picture',
@@ -150,8 +221,12 @@ class CraftImgixPicture extends Plugin
         );
     }
 
-    protected function createSettingsModel()
+    /**
+     * @inheritdoc
+     */
+    protected function createSettingsModel(): ?Settings
     {
         return new Settings();
     }
+
 }
