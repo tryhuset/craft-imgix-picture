@@ -2,7 +2,7 @@
     "name": "apt/craft-imgix-picture",
     "description": "Create responsive image tags and json objects from config file, using the imgIX service.",
     "type": "craft-plugin",
-    "version": "4.0.0",
+    "version": "2.0.0",
     "keywords": [
         "craft",
         "cms",
@@ -27,7 +27,7 @@
     },
     "autoload": {
         "psr-4": {
-          "apt\\craftimgixpicture\\": "src/"
+            "apt\\craftimgixpicture\\": "src/"
         }
     },
     "extra": {
@@ -42,5 +42,10 @@
             "imgix": "apt\\craftimgixpicture\\services\\Imgix"
         },
         "class": "apt\\craftimgixpicture\\CraftImgixPicture"
+    },
+    "config": {
+        "platform": {
+            "php": "8.0.2"
+        }
     }
 }
