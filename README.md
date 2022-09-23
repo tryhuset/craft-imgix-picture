@@ -119,6 +119,24 @@ outputs:
 <img class="bar" src="..." alt="foo" />
 ```
 
+## Image preload tags
+
+Sometimes it is advantageous to render preload tags in the head of the page, especially when you have full-coverage images above the fold.
+
+```twig
+<head>
+...
+{{ craft.craftImgixPicture.preload(asset, 'complex-picture') }}
+</head>
+```
+outputs:
+
+```html
+<link rel="preload" href="..." as="image" imagesrcset="..." imagesizes="50vw">
+<link rel="preload" as="image" imagesrcset="..." imagesizes="100vw" media="(max-width: 600px)">
+<link rel="preload" as="image" imagesrcset="..." imagesizes="300px" media="(max-width: 1200px)">
+```
+
 ## Image as array
 
 ```twig
