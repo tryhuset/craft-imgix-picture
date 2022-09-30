@@ -157,7 +157,7 @@ class CraftImgixPicture extends Plugin
                 $isNewElement = $event->isNew;
 
                 if ($element instanceof Asset) {
-                    CraftImgixPicture::$plugin->imgixService->onDeleteAsset($element);
+                    CraftImgixPicture::$plugin->imgix->onDeleteAsset($element);
                 }
             }
         );
@@ -173,7 +173,7 @@ class CraftImgixPicture extends Plugin
                 /** @var Asset $element */
                 $element = $event->asset;
 
-                CraftImgixPicture::$plugin->imgixService->onSaveAsset($element);
+                CraftImgixPicture::$plugin->imgix->onSaveAsset($element);
             }
         );
 
