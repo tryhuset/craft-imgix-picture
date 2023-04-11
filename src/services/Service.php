@@ -135,6 +135,35 @@ class Service extends Component
         return implode(' ', $tag);
     }
 
+    protected function getSize(Asset $asset, $style): array
+    {
+        $size = [];
+        $width = $asset->width;
+        $height = $asset->height;
+
+        $aspectRatio = $style['aspectRatio'] ?? $width / $height;
+
+        if (isset($style['widths']) && is_array($style['widths']) && count($style['widths']) > 0) {
+            $width = array_shift($style['widths']);
+        }
+
+        if (array_key_exists('width', $style)) {
+            if ($style['width'] === true) {
+                $size['width'] = $width;
+            } else {
+                $width = $style['width'];
+            }
+        }
+
+        if (array_key_exists('height', $style)) {
+            if ($style['height'] === true) {
+                $size['height'] = intval($width / $aspectRatio);
+            }
+        }
+
+        return $size;
+    }
+
     /*
      * @return mixed
      */
@@ -193,7 +222,7 @@ class Service extends Component
     protected function getSrcSet(Asset $asset, $style, $imgixOptions = [])
     {
         if (count($style['widths']) < 1) {
-            return null;
+            $style['widths'] = [$asset->width];
         }
 
         $srcSet = [];
@@ -280,7 +309,12 @@ class Service extends Component
             $alt = $options['alt'];
         }
 
+        $size = $this->getSize($asset, $style);
+
+        $style = array_merge($style, $size);
+
         $srcSet = $this->getSrcSet($asset, $style, $imgixOptions);
+
         $src = array_shift($srcSet);
 
         $src = preg_replace('/(.*) (\d*w$)/', '$1', $src);

@@ -81,6 +81,8 @@ return [
                 'alt' => 'foo',
                 'class' => 'foo', // Add your html attributes
                 // 'options' => [], // Override imgix options
+                // 'width' => true, // If you want calculated width
+                // 'height' => true // If you want calculated height
             ],
         ],
 
