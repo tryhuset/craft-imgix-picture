@@ -56,10 +56,15 @@ return [
     // Lazy load attribute prefix
     'lazyLoadPrefix' => '',
 
+    // Add file extentions that should skip transform. Typical prevent destorying animated gifs.
+    //'exclude' => ['gif'],
+
     // 'options' => [], // Default imgix options
     'imageStyles' => [
         'complex-picture' => [
             // 'options' => [], // Override default imgix options
+            // Add file extentions that should skip transform. Typical prevent destorying animated gifs.
+            //'exclude' => ['gif'],
             'sources' => [
                 [
                     'media' => '(max-width: 600px)',

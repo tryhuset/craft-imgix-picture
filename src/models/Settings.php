@@ -22,6 +22,8 @@ class Settings extends Model
 
     public $imageStyles = [];
 
+    public $exclude = [];
+
     public function init() : void
     {
         parent::init();
@@ -102,7 +104,8 @@ class Settings extends Model
             ['lazyLoadPrefix', 'default', 'value' => ''],
             ['variableName', 'required'],
             [['domains', 'options'], 'validateArray'],
-            ['imageStyles', 'validateImageStyles']
+            ['imageStyles', 'validateImageStyles'],
+            ['exclude', 'default', 'value' => []],
         ];
     }
 }

@@ -32,6 +32,7 @@ class Service extends Component
 
     protected $styles;
     protected $defaultImgixOptions = [];
+    protected $defaultExclude = [];
     protected $imgix;
 
     public function __construct($data = [])
@@ -40,6 +41,7 @@ class Service extends Component
         parent::__construct($data);
         $this->styles = CraftImgixPicture::getInstance()->settings->imageStyles;
         $this->defaultImgixOptions = CraftImgixPicture::getInstance()->settings->options;
+        $this->defaultExclude = CraftImgixPicture::getInstance()->settings->exclude;
         $this->imgix = CraftImgixPicture::getInstance()->imgix;
     }
 
@@ -67,12 +69,23 @@ class Service extends Component
         $result = [];
         $style = $this->getStyle($key);
         $imgixOptions = $this->defaultImgixOptions;
+        $exclude = array_merge($this->defaultExclude, $style['exclude'] ?? []);
 
         $pictureClass = null;
 
         if (array_key_exists('pictureClass', $options)) {
             $pictureClass = $options['pictureClass'];
             unset($options['pictureClass']);
+        }
+
+        if (count($exclude) > 0) {
+            if (in_array($asset->extension, $exclude)) {
+                return [
+                    'img' => [
+                        'src' => $asset->url,
+                    ],
+                ];
+            }
         }
 
         if (array_key_exists('sources', $style)) {
