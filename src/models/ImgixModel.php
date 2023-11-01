@@ -15,6 +15,7 @@ use craft\elements\Asset;
 use craft\helpers\Template;
 use Imgix\UrlBuilder;
 use apt\craftimgixpicture\CraftImgixPicture;
+use craft\helpers\Assets;
 
 use Craft;
 use craft\base\Model;
@@ -162,6 +163,8 @@ class ImgixModel extends Model
     protected $defaultOptions;
     protected $lazyLoadPrefix;
 
+    protected $kind = Asset::KIND_IMAGE;
+
     // Public Methods
     // =========================================================================
 
@@ -180,6 +183,7 @@ class ImgixModel extends Model
 
         /** @var null|Asset $image */
         if ($image instanceof Asset) {
+            $this->kind = $image->kind;
             $source       = $image->getVolume();
             $sourceHandle = $source->handle;
             $focalPoint   = $image->getFocalPoint();
@@ -218,7 +222,9 @@ class ImgixModel extends Model
             $this->transform($transforms);
         } elseif (gettype($image) === 'string') {
             $domains     = CraftImgixPicture::$plugin->getSettings()->domains;
-            $firstHandle = reset($domains);
+
+            reset($domains);
+            $firstHandle = array_key_first($domains);
             $domain      = $domains[$firstHandle];
             $domainParts = [];
             if ($domain !== null) {
@@ -241,34 +247,12 @@ class ImgixModel extends Model
             $this->imagePath      = $imagePath;
             $this->transforms     = $transforms;
             $this->defaultOptions = $defaultOptions;
+            $this->kind = Assets::getFileKindByExtension($this->imagePath);
             $this->transform($transforms);
         } else {
             throw new Exception(Craft::t('craft-imgix-picture', 'An unknown image object was used.'));
         }
     }
-
-    // /**
-    //  * @param null $attributes
-    //  *
-    //  * @return null|\Twig_Markup
-    //  */
-    // public function img($attributes = null)
-    // {
-    //     if ($image = $this->transformed) {
-    //         if ($image && isset($image['url'])) {
-    //             $lazyLoad = false;
-    //             if (isset($attributes['lazyLoad'])) {
-    //                 $lazyLoad = $attributes['lazyLoad'];
-    //                 unset($attributes['lazyLoad']); // unset to remove it from the html output
-    //             }
-    //             $tagAttributes = $this->getTagAttributes($attributes);
-
-    //             return Template::raw('<img ' . ($lazyLoad ? $this->lazyLoadPrefix : '') . 'src="' . $image['url'] . '" ' . $tagAttributes . ' />');
-    //         }
-    //     }
-
-    //     return null;
-    // }
 
     /**
      * @return mixed|null
@@ -284,49 +268,261 @@ class ImgixModel extends Model
         return null;
     }
 
-    // /**
-    //  * @param $attributes
-    //  *
-    //  * @return null|\Twig_Markup
-    //  */
-    // public function srcset($attributes = [])
-    // {
-    //     if ($images = $this->transformed) {
-    //         $widths = [];
-    //         $result = '';
+    protected function getProps($keys = [], $array = []) {
+         return array_intersect_key($array, array_fill_keys($keys, null));
+    }
 
-    //         foreach ($images as $image) {
-    //             $keys  = array_keys($image);
-    //             $width = $image['width'] ?? $image['w'] ?? null;
-    //             if ($width && !isset($widths[$width])) {
-    //                 $withs[$width] = true;
-    //                 $result          .= $image['url'] . ' ' . $width . 'w, ';
-    //             }
-    //         }
+    protected function getVideoPlayerProps()
+    {
+        $videoProps =  $this->getProps(['controls', 'autoplay', 'loop', 'muted', 'playsinline'], $this->defaultOptions);
 
-    //         $srcset   = substr($result, 0, strlen($result) - 2);
-    //         $lazyLoad = false;
+        if (!$videoProps) {
+            return null;
+        }
 
-    //         if (isset($attributes['lazyLoad'])) {
-    //             $lazyLoad = $attributes['lazyLoad'];
-    //             unset($attributes['lazyLoad']); // unset to remove it from the html output
-    //         }
+        return $videoProps;
+    }
 
-    //         $tagAttributes = $this->getTagAttributes($attributes);
+    protected function getVideoSrcProps()
+    {
+        $srcConfig =  $this->getProps(['fm', 'res'], $this->defaultOptions);
 
-    //         return Template::raw('<img ' . ($lazyLoad ? $this->lazyLoadPrefix : '') . 'src="' . $images[0]['url'] . '" ' . ($lazyLoad ? $this->lazyLoadPrefix : '') . 'srcset="' . $srcset . '" ' . $tagAttributes . ' />');
-    //     }
+        if (!$srcConfig) {
+            return [];
+        }
 
-    //     return null;
-    // }
+        return $srcConfig;
+    }
+
+    protected function getVideoPosterProps()
+    {
+        $posterConfig = $this->defaultOptions['poster'] ?? null;
+
+        if (!$posterConfig) {
+            return null;
+        }
+
+        $posterConfig =  $this->getProps(['time'], $posterConfig);
+
+        if (!$posterConfig) {
+            return null;
+        }
+
+        $posterConfig['video-generate'] = 'thumbnail';
+
+        $time = $posterConfig['time'] ?? null;
+
+        unset($posterConfig['time']);
+
+        if ($time !== null) {
+            $posterConfig['video-thumbnail-time'] = $time;
+        } else {
+            $posterConfig['video-thumbnail-time'] = 0;
+        }
+
+        return $posterConfig;
+    }
+
+    protected function getVideoDownloadProps()
+    {
+        $srcConfig =  $this->getProps(['fm', 'res', 'download', 'downloadClass'], $this->defaultOptions);
+        $extra = [];
+
+        $downloadClass = $srcConfig['downloadClass'] ?? null;
+
+        if ($downloadClass) {
+            $extra['class'] = $downloadClass;
+        }
+
+        $download = $srcConfig['download'] ?? null;
+
+        if (!$download) {
+            return null;
+        }
+
+        unset($srcConfig['downloadClass']);
+        unset($srcConfig['download']);
+
+        if ($download) {
+            $extention = $srcConfig['fm'];
+            $pathParts = pathinfo($this->imagePath);
+
+            $href = $srcConfig;
+
+            $default = [
+                'title' => $pathParts['filename'],
+                'name' => $pathParts['filename'],
+                'text' => $pathParts['filename'],
+            ];
+
+            if (is_string($download)) {
+                $download = [
+                    'title' => $download,
+                    'name' => $download,
+                    'text' => $download,
+                ];
+            } else if (is_array($download)) {
+                $props = $this->getProps(['title', 'name', 'text', 'class'], $download);
+
+                $download = array_merge($default, $props, $extra);
+            } else {
+                $download = $default;
+            }
+
+            $download['download'] = "{$download['name']}.{$extention}";
+
+            $href['vdl'] = $download['name'];
+
+            unset($download['name']);
+
+            $srcConfig = array_merge([ 'href' => $href ],$download);
+        }
+
+        if (!$srcConfig) {
+            return null;
+        }
+
+        return $srcConfig;
+    }
+
+    protected function getVideoStoryboardProps()
+    {
+        $srcConfig =  $this->getProps(['storyboardClass'], $this->defaultOptions);
+        $extra = [];
+
+        $storyboarClass = $srcConfig['storyboardClass'] ?? null;
+
+        if ($storyboarClass) {
+            $extra['class'] = $storyboarClass;
+        }
+
+        $storyboarConfig = $this->defaultOptions['storyboard'] ?? null;
+
+        if (!$storyboarConfig) {
+            return null;
+        }
+
+        $storyboarConfig =  $this->getProps(['format'], $storyboarConfig);
+
+        $storyboarConfig['video-generate'] = 'storyboard';
+
+        $format = $storyboarConfig['format'] ?? 'vtt';
+
+        unset($storyboarConfig['format']);
+
+        $storyboarConfig['video-storyboard-format'] = $format;
+
+        return array_merge($storyboarConfig, $extra);
+    }
+
+    protected function getVideoGifProps()
+    {
+        $gifConfig = $this->defaultOptions['gif'] ?? null;
+
+        if (!$gifConfig) {
+            return null;
+        }
+
+        $gifConfig =  $this->getProps(['start', 'end', 'fps', 'quality', 'interval', 'loop', 'reverse', 'skip'], $gifConfig);
+
+        $gifConfig['video-generate'] = 'gif';
+
+        $start = $gifConfig['start'] ?? null;
+        $end = $gifConfig['end'] ?? null;
+        $fps = $gifConfig['fps'] ?? null;
+        $quality = $gifConfig['quality'] ?? null;
+
+        unset($gifConfig['start']);
+        unset($gifConfig['end']);
+        unset($gifConfig['fps']);
+        unset($gifConfig['quality']);
+
+        if ($start !== null) {
+            $gifConfig['video-gif-time-start'] = $start;
+        }
+
+        if ($end !== null) {
+            $gifConfig['video-gif-time-end'] = $end;
+        }
+
+        if ($fps !== null) {
+            $gifConfig['video-gif-fps'] = $fps;
+        }
+
+        if ($quality !== null) {
+            $gifConfig['gif-q'] = $quality;
+        }
+
+        return $gifConfig;
+    }
 
     /**
      * @param $transforms
      *
      * @return null
      */
-    protected function transform($transforms)
+    protected function transform($transforms = [])
     {
+        if ($this->kind === Asset::KIND_VIDEO) {
+
+             $gifProps = $this->getVideoGifProps();
+
+            if ($gifProps) {
+                $src = $this->buildTransform($this->imagePath, $gifProps);
+            } else {
+                $videoSrcProps = $this->getVideoSrcProps();
+
+                $src = $this->buildTransform($this->imagePath, $videoSrcProps);
+            }
+
+            $videoProps =  $this->getVideoPlayerProps();
+
+
+            $transformed = [
+                'video' => array_merge($videoProps, [
+                    'src' => $src,
+                ]),
+            ];
+
+
+            $posterProps = $this->getVideoPosterProps();
+
+            if ($posterProps) {
+                $poster = $this->buildTransform($this->imagePath, $posterProps);
+
+                if (isset($transformed['video'])) {
+                    $transformed['video'] = array_merge($transformed['video'], [
+                        'poster' => $poster,
+                    ]);
+                }
+            }
+
+             $downloadProps = $this->getVideoDownloadProps();
+
+            if ($downloadProps) {
+                $href = $this->buildTransform($this->imagePath, $downloadProps['href']);
+
+                $transformed = array_merge($transformed, [
+                    'download' => array_merge($downloadProps, [
+                        'href' => $href,
+                    ]),
+                 ]);
+            }
+
+
+            $storyboardProps = $this->getVideoStoryboardProps();
+
+            if ($storyboardProps) {
+                $storyboard = $this->buildTransform($this->imagePath, $storyboardProps);
+
+                 $transformed = array_merge($transformed, [
+                    'storyboard' => $storyboard,
+                 ]);
+            }
+
+            $this->transformed = $transformed;
+        }
+
         if (!$transforms) {
             return null;
         }
@@ -381,26 +577,6 @@ class ImgixModel extends Model
         }
 
         return $translatedAttributes;
-    }
-
-    /**
-     * @param $attributes
-     *
-     * @return string
-     */
-    private function getTagAttributes($attributes)
-    {
-        if (!$attributes) {
-            return '';
-        }
-
-        $tagAttributes = '';
-
-        foreach ($attributes as $key => $attribute) {
-            $tagAttributes .= ' ' . $key . '="' . $attribute . '"';
-        }
-
-        return $tagAttributes;
     }
 
     /**

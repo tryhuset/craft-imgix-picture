@@ -1,0 +1,13 @@
+{% set video = video ?? null %}
+{% set download = download ?? null %}
+
+
+{% if video %}
+	<video {{ video|raw }}></video>
+{% endif %}
+
+{% if download %}
+	<a {{ download.attributes|default('')|raw }}>{{ download.text|default('Download') }}</a>
+{% endif %}
+
+

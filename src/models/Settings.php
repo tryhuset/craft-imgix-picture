@@ -18,7 +18,13 @@ class Settings extends Model
 
     public $lazyLoadPrefix = '';
 
-    public $options = [];
+    public $options = [
+        'fit' => 'crop',
+        'crop' => 'focalpoint',
+        'auto' => 'format',
+        'fm' => 'mp4',
+        'res' => 'high'
+    ];
 
     public $imageStyles = [];
 

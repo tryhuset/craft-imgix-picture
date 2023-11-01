@@ -71,6 +71,10 @@ class Service extends Component
         $imgixOptions = $this->defaultImgixOptions;
         $exclude = array_merge($this->defaultExclude, $style['exclude'] ?? []);
 
+        if($asset->kind === 'video') {
+            return $this->getVideoArray($asset, $style, $imgixOptions, $options);
+        }
+
         $pictureClass = null;
 
         if (array_key_exists('pictureClass', $options)) {
@@ -154,7 +158,7 @@ class Service extends Component
         $width = $asset->width;
         $height = $asset->height;
 
-        $aspectRatio = $style['aspectRatio'] ?? $width / $height;
+        $aspectRatio = $style['aspectRatio'] ?? ($width &&  $height ? $width / $height : 0);
 
         if (isset($style['widths']) && is_array($style['widths']) && count($style['widths']) > 0) {
             $width = array_shift($style['widths']);
@@ -201,7 +205,35 @@ class Service extends Component
         $oldMode = Craft::$app->view->getTemplateMode();
         Craft::$app->view->setTemplateMode(View::TEMPLATE_MODE_SITE);
 
-        $template = array_key_exists('sources', $data) ? 'craft-imgix-picture/picture' : 'craft-imgix-picture/img';
+        $template = 'craft-imgix-picture/img';
+
+        switch(true) {
+            case $asset->kind === 'video':
+                if (isset($data['video'])) {
+                    $data['video'] = $this->normalizeAttributes($data['video']);
+                }
+
+                if (isset($data['download'])) {
+                    $text = $data['download']['text'] ?? 'Download';
+
+                    unset($data['download']['text']);
+
+                    $data['download'] = [
+                        'text' => $text,
+                        'attributes' => $this->normalizeAttributes($data['download']),
+                    ];
+                }
+
+                $template = 'craft-imgix-picture/video';
+                break;
+            case array_key_exists('sources', $data):
+                $template = 'craft-imgix-picture/picture';
+                break;
+            default:
+                $template = 'craft-imgix-picture/img';
+                break;
+        }
+
 
         $html =  Craft::$app->view->renderTemplate(
             $template,
@@ -302,6 +334,11 @@ class Service extends Component
         }, $sources);
     }
 
+    protected function getVideoSrc(Asset $asset, $style, $imgixOptions = [], $options = [])
+    {
+        return $this->imgix->transformVideo($asset, $style, $imgixOptions, $options)->toArray();
+    }
+
     protected function getImageArray(Asset $asset, $style, $imgixOptions = [], $options = [])
     {
         $alt = $asset->alt ?? $asset->title ?? '';
@@ -347,5 +384,33 @@ class Service extends Component
             'src' => $src,
             'alt' => $alt,
         ]);
+    }
+
+    protected function getVideoArray(Asset $asset, $style, $imgixOptions = [], $options = [])
+    {
+        $alt = $asset->alt ?? $asset->title ?? '';
+        $alt = $style['alt'] ?? $alt;
+
+        if (array_key_exists('imgix', $style)) {
+            $imgixOptions = array_merge($imgixOptions, $style['imgix']);
+            unset($style['imgix']);
+        }
+
+        if (array_key_exists('imgix', $options)) {
+            $imgixOptions = array_merge($imgixOptions, $options['imgix']);
+            unset($options['imgix']);
+        }
+
+        $video = $this->getVideoSrc($asset, $style, $imgixOptions, $options);
+
+        if (!$video) {
+            return null;
+        }
+
+        if (!$video['transformed']) {
+            return null;
+        }
+
+        return $video['transformed'];
     }
 }

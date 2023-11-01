@@ -96,6 +96,15 @@ return [
                 'widths' => [260],
                 'alt' => 'foo',
             ],
+        ],
+        'my-video' => [
+          'fm' => 'mp4', // default 'mp4'
+          'res' => 'high', // default 'height'
+          'controls' => true,
+          'autoplay' => true,
+          'loop' => true,
+          'muted' => true,
+          'playsinline' => true,
         ]            
     ],
 ];
@@ -142,6 +151,20 @@ outputs:
 <link rel="preload" href="..." as="image" imagesrcset="..." imagesizes="50vw">
 <link rel="preload" as="image" imagesrcset="..." imagesizes="100vw" media="(max-width: 600px)">
 <link rel="preload" as="image" imagesrcset="..." imagesizes="300px" media="(max-width: 1200px)">
+```
+
+## Render Video html tag
+
+```twig
+<head>
+...
+{{ craft.craftImgixPicture.tag(asset, 'my-video') }}
+</head>
+```
+outputs:
+
+```html
+<video src="...mp4?fm=mp4&res=high" controls autoplay loop muted playsinline></video>
 ```
 
 ## Image as array
@@ -196,7 +219,27 @@ outputs:
 
 ```
 
-Brought to you by [thomas@apt.no](https://apt.no)
+## Video as array
+
+```twig
+{% set image = craft.craftImgixPicture.array(asset, 'my-video') %}
+```
+
+outputs:
+
+```javascript
+
+{
+  video: {
+    src: '...mp4?fm=mp4&res=high',
+    autoplay: true,
+    loop: true,
+    muted: true,
+    playsinline: true
+  }
+}
+
+```
 
 ## GraphQL
 
@@ -262,7 +305,7 @@ outputs:
               "srcSet": "...",
               "sizes": "50vw",
               "alt": "foo",
-              "className": "bar"
+              "className": "bar"  
             }
           }
         }
@@ -272,3 +315,4 @@ outputs:
 }
 
 ```
+Brought to you by [thomas.somoen@try.no](mailto:thomas.somoen@try.no)

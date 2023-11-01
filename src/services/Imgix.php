@@ -69,6 +69,49 @@ class Imgix extends Component
     }
 
     /**
+     * @param null  $asset
+     * @param null  $transforms
+     * @param array $defaultOptions
+     *
+     * @return null|ImgixModel
+     */
+    public function transformVideo($asset = null, $style = [], $imgixOptions = [], $options = [])
+    {
+        if (!$asset) {
+            return null;
+        }
+
+        $options = array_merge($imgixOptions, $style, $options);
+        $imgixOptionsDownload = $imgixOptions['download'] ?? [];
+        $styleDownload = $style['download'] ?? [];
+        $optionsDownload = $options['download'] ?? [];
+
+        if (isset($options['download'])) {
+            $options['download'] = array_merge($imgixOptionsDownload, $styleDownload, $optionsDownload);
+        }
+
+        $imgixOptionsStoryboard = $imgixOptions['storyboard'] ?? [];
+        $styleStoryboard = $style['storyboard'] ?? [];
+        $optionsStoryboard = $options['storyboard'] ?? [];
+
+        if (isset($options['storyboard'])) {
+            $options['storyboard'] = array_merge($imgixOptionsStoryboard, $styleStoryboard, $optionsStoryboard);
+        }
+
+        $imgixOptionsGif = $imgixOptions['gif'] ?? [];
+        $styleGif = $style['gif'] ?? [];
+        $optionsGif = $options['gif'] ?? [];
+
+        if (isset($options['gif'])) {
+            $options['gif'] = array_merge($imgixOptionsGif, $styleGif, $optionsGif);
+        }
+
+        $pathsModel = new ImgixModel($asset, null, $options);
+
+        return $pathsModel;
+    }
+
+    /**
      * @param Asset $asset
      */
     public function onSaveAsset(Asset $asset)
