@@ -21,6 +21,7 @@ use craft\events\RegisterTemplateRootsEvent;
 use craft\events\ElementEvent;
 use craft\events\RegisterElementActionsEvent;
 use craft\events\ReplaceAssetEvent;
+use craft\events\DefineAssetThumbUrlEvent;
 use craft\elements\Asset;
 use craft\web\View;
 use craft\web\twig\variables\CraftVariable;
@@ -158,6 +159,21 @@ class CraftImgixPicture extends Plugin
 
                 if ($element instanceof Asset) {
                     CraftImgixPicture::$plugin->imgix->onDeleteAsset($element);
+                }
+            }
+        );
+
+        Event::on(
+            Assets::class,
+            Assets::EVENT_DEFINE_THUMB_URL,
+            static function (DefineAssetThumbUrlEvent $event): void {
+                Craft::debug(
+                    'Assets::EVENT_DEFINE_THUMB_URL',
+                    __METHOD__
+                );
+
+                if ($event->asset->kind === 'image') {
+                    $event->url = CraftImgixPicture::$plugin->imgix->transformImage($event->asset, ['width' => $event->width, 'height' => $event->height], CraftImgixPicture::getInstance()->settings->options)->getUrl();
                 }
             }
         );
