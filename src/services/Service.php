@@ -71,7 +71,7 @@ class Service extends Component
         $imgixOptions = $this->defaultImgixOptions;
         $exclude = array_merge($this->defaultExclude, $style['exclude'] ?? []);
 
-        if($asset->kind === 'video') {
+        if ($asset->kind === 'video') {
             return $this->getVideoArray($asset, $style, $imgixOptions, $options);
         }
 
@@ -174,7 +174,10 @@ class Service extends Component
 
         if (array_key_exists('height', $style)) {
             if ($style['height'] === true) {
-                $size['height'] = intval($width / $aspectRatio);
+
+                if ($aspectRatio !== 0) {
+                    $size['height'] = intval($width / $aspectRatio);
+                }
             }
         }
 
@@ -207,7 +210,7 @@ class Service extends Component
 
         $template = 'craft-imgix-picture/img';
 
-        switch(true) {
+        switch (true) {
             case $asset->kind === 'video':
                 if (isset($data['video'])) {
                     $data['video'] = $this->normalizeAttributes($data['video']);
