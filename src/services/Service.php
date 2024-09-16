@@ -77,6 +77,8 @@ class Service extends Component
 
         $pictureClass = null;
 
+        unset($imgixOptions['fm']);
+
         if (array_key_exists('pictureClass', $options)) {
             $pictureClass = $options['pictureClass'];
             unset($options['pictureClass']);
