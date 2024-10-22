@@ -63,7 +63,12 @@ class Imgix extends Component
         if (!$asset) {
             return null;
         }
-        $pathsModel = new ImgixModel($asset, $transforms, $defaultOptions);
+
+        $options = $defaultOptions;
+
+        unset($options['fm']);
+
+        $pathsModel = new ImgixModel($asset, $transforms, $options);
 
         return $pathsModel;
     }
