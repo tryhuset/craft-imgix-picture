@@ -1,13 +1,12 @@
-# Craft Imgix Picture plugin for Craft CMS 4.x
+# Craft Imgix Picture plugin for Craft CMS 5.x
 
 Create responsive image tags and json objects from config file, using the imgIX service.
-
 
 ## Installation
 
 To install the plugin, follow these instructions.
 
-1. Open your terminal and go to your Craft project:
+1.  Open your terminal and go to your Craft project:
 
         cd /path/to/project
 
@@ -23,7 +22,7 @@ To install the plugin, follow these instructions.
         ],
         ...
 
-3. Then tell Composer to load the plugin:
+3.  Then tell Composer to load the plugin:
 
 ```sh
 composer require apt/craft-imgix-picture
@@ -105,12 +104,13 @@ return [
           'loop' => true,
           'muted' => true,
           'playsinline' => true,
-        ]            
+        ]
     ],
 ];
 ```
 
 ## Render html tag
+
 ```twig
 {{ craft.craftImgixPicture.tag(asset, 'complex-picture', { alt: asset.title, pictureClass: 'foo', class: 'bar' }) }}
 ```
@@ -145,12 +145,25 @@ Sometimes it is advantageous to render preload tags in the head of the page, esp
 {{ craft.craftImgixPicture.preload(asset, 'complex-picture') }}
 </head>
 ```
+
 outputs:
 
 ```html
-<link rel="preload" href="..." as="image" imagesrcset="..." imagesizes="50vw">
-<link rel="preload" as="image" imagesrcset="..." imagesizes="100vw" media="(max-width: 600px)">
-<link rel="preload" as="image" imagesrcset="..." imagesizes="300px" media="(max-width: 1200px)">
+<link rel="preload" href="..." as="image" imagesrcset="..." imagesizes="50vw" />
+<link
+  rel="preload"
+  as="image"
+  imagesrcset="..."
+  imagesizes="100vw"
+  media="(max-width: 600px)"
+/>
+<link
+  rel="preload"
+  as="image"
+  imagesrcset="..."
+  imagesizes="300px"
+  media="(max-width: 1200px)"
+/>
 ```
 
 ## Render Video html tag
@@ -161,10 +174,18 @@ outputs:
 {{ craft.craftImgixPicture.tag(asset, 'my-video') }}
 </head>
 ```
+
 outputs:
 
 ```html
-<video src="...mp4?fm=mp4&res=high" controls autoplay loop muted playsinline></video>
+<video
+  src="...mp4?fm=mp4&res=high"
+  controls
+  autoplay
+  loop
+  muted
+  playsinline
+></video>
 ```
 
 ## Image as array
@@ -305,7 +326,7 @@ outputs:
               "srcSet": "...",
               "sizes": "50vw",
               "alt": "foo",
-              "className": "bar"  
+              "className": "bar"
             }
           }
         }
@@ -315,4 +336,5 @@ outputs:
 }
 
 ```
+
 Brought to you by [thomas.somoen@try.no](mailto:thomas.somoen@try.no)
