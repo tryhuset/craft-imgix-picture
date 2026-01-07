@@ -11,14 +11,14 @@
     "craft imgix picture"
   ],
   "support": {
-    "docs": "https://git1.apt.no/open/craft-imgix-picture",
-    "issues": "https://git1.apt.no/open/craft-imgix-picture/-/issues"
+    "docs": "https://github.com/tryhuset/craft-imgix-picture",
+    "issues": "https://github.com/tryhuset/craft-imgix-picture/-/issues"
   },
   "license": "MIT",
   "authors": [
     {
       "name": "Apt as",
-      "homepage": "https://apt.no"
+      "homepage": "https://try.no"
     }
   ],
   "require": {
@@ -35,8 +35,8 @@
     "handle": "craft-imgix-picture",
     "developer": "Apt as",
     "developerUrl": "https://apt.no",
-    "documentationUrl": "https://git1.apt.no/open/craft-imgix-picture/-/blob/master/README.md",
-    "changelogUrl": "https://git1.apt.no/open/craft-imgix-picture/-/blob/master/README.md",
+    "documentationUrl": "https://github.com/tryhuset/craft-imgix-picture/-/blob/main/README.md",
+    "changelogUrl": "https://github.com/tryhuset/craft-imgix-picture/-/blob/main/README.md",
     "components": {
       "service": "apt\\craftimgixpicture\\services\\Service",
       "imgix": "apt\\craftimgixpicture\\services\\Imgix"

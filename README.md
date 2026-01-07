@@ -17,7 +17,7 @@ To install the plugin, follow these instructions.
           ...
           {
             "type": "vcs",
-            "url": "https://git1.apt.no/open/craft-imgix-picture.git"
+            "url": "https://github.com/tryhuset/craft-imgix-picture"
           }
         ],
         ...
