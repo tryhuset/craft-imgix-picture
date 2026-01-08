@@ -258,7 +258,7 @@ class Imgix extends Component
         $domains = $this->settings->domains;
         $volume = $asset->getVolume();
 
-        $assetUrl = AssetsHelper::generateUrl($asset->fs, $asset);
+        $assetUrl = AssetsHelper::generateUrl($asset);
 
         $assetUri = parse_url($assetUrl, PHP_URL_PATH);
 
